@@ -197,6 +197,9 @@
   .choice .cl { display: flex; flex-direction: column; }
   .choice .cs { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
   .choice.sel .cs { color: var(--accent-ink); opacity: .8; }
+  .choice .cp { font-family: var(--mono); font-size: 11.5px; color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+  .choice.sel .cp { font-weight: 700; }
+  .choice.off { opacity: .45; }
 
   .cond { border-left: 3px solid var(--accent); background: var(--accent-weak); border-radius: 0 3px 3px 0; padding: 12px 14px; margin: 12px 0; }
   .cond .condhead { font-size: 12px; font-weight: 700; color: var(--accent-ink); margin: 0 0 8px; font-family: var(--mono); letter-spacing: .04em; }
@@ -390,7 +393,8 @@
     <div class="note caution">
       <span class="note-label">最上流の判断 &middot; 決着</span>
       <p><strong>2026-09-16、Google クラウド利用の院内承認を取得しました。案 D で確定です。</strong>これまで全体の最上流にあった「認められなければ案 B へ全面切り替え」という条件は外れ、構成がひっくり返るリスクはなくなりました。</p>
-      <p>ただし業者向け仕様（<code>docs/02_メール仕様.md</code> と <code>vendor/</code>）は<strong>削除せず残します</strong>。将来サイト内へフォームを移す判断をしたとき、そのまま発注仕様として使えるためです。</p>
+      <p><strong>ただし条件が 2 つ付いています</strong> —— <em>Google Workspace 契約が前提</em>、<em>保持期間は 1 年まで</em>。どちらも満たさなければ承認が無効になるため、09 節で制約として扱っています。</p>
+      <p>業者向け仕様（<code>docs/02_メール仕様.md</code> と <code>vendor/</code>）は<strong>削除せず残します</strong>。将来サイト内へフォームを移す判断をしたとき、そのまま発注仕様として使えるためです。</p>
     </div>
   </section>
 
@@ -427,6 +431,11 @@
   <section class="doc prose">
     <h2><span class="sec">05</span>入力項目と分岐</h2>
     <p>分岐の目的は見た目ではなく、<strong>受付担当が折り返し電話で聞き直す項目をゼロに近づけること</strong>です。非表示の項目は送信データから除外し、台帳では空欄になります。</p>
+    <div class="note key">
+      <span class="note-label">2026-09-16 変更 &middot; 胃の検査をオプションに一本化</span>
+      <p>従来はコース側に「胃部検査（胃カメラ／バリウム／希望しない）」の分岐がありました。しかし公式サイトでは<strong>胃カメラ・胃透視・大腸カメラがいずれもオプション検査</strong>として提供されており、コース側に胃部検査の選択はありません。またコースごとの胃部検査の有無は「ライト（半日・胃カメラなし）」以外は確定できませんでした。</p>
+      <p>そこで<em>胃の検査をオプションに一本化</em>しました。コースごとの有無を推測する必要がなくなり、同時に<strong>「オプションで胃カメラを選んだ人に鎮静剤・抗血栓薬の確認が出ない」という従来の漏れも塞がります。</strong></p>
+    </div>
   </section>
   <div class="scroller">
     <table class="t-wide">
@@ -438,12 +447,13 @@
         <tr><td>B 区分</td><td>保険証の記号・番号／被扶養者の同時受診</td><td>協会けんぽ</td><td>必須</td></tr>
         <tr><td>B 区分</td><td>健保組合名／補助券の有無</td><td>健康保険組合の補助</td><td>必須</td></tr>
         <tr><td>B 区分</td><td>市町名／受診券の有無</td><td>自治体の特定健診・がん検診</td><td>必須</td></tr>
-        <tr><td>C コース</td><td>胃部検査（胃カメラ／バリウム／希望しない）</td><td>胃部検査を含むコース</td><td>必須</td></tr>
-        <tr><td>C コース</td><td>鎮静剤の希望</td><td>胃部検査＝胃カメラ</td><td>必須</td></tr>
-        <tr><td>D 追加検査</td><td>8 項目から複数選択</td><td>常時</td><td>任意</td></tr>
+        <tr><td>C コース</td><td>コース（11 種）</td><td>常時。<strong>胃部検査による出し分けは廃止</strong></td><td>必須</td></tr>
+        <tr><td>D 追加検査</td><td>12 項目から複数選択。<strong>胃カメラ・胃透視もここに含む</strong></td><td>常時。胃カメラと胃透視は排他（仮）</td><td>任意</td></tr>
+        <tr><td>D 追加検査</td><td>鎮静剤の希望</td><td><strong>追加検査に胃カメラを選択</strong></td><td>必須</td></tr>
         <tr><td>E 安全確認</td><td>妊娠中・妊娠の可能性・授乳中</td><td>性別＝女性</td><td>必須</td></tr>
-        <tr><td>E 安全確認</td><td>ペースメーカー・体内金属・刺青／造影剤アレルギー</td><td>頭部 CT・MRI を選択</td><td>必須</td></tr>
-        <tr><td>E 安全確認</td><td>血をサラサラにする薬</td><td>胃部検査＝胃カメラ</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>ペースメーカー・体内金属・刺青</td><td><strong>頭部MR／AI脳解析用MR+CQテスト を選択</strong>（頭部CT のみでは出さない）</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>造影剤アレルギー</td><td>頭部MR／頭部CT／AI脳解析用MR+CQテスト を選択（造影の要否は未確認・仮）</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>血をサラサラにする薬</td><td><strong>追加検査に胃カメラを選択</strong></td><td>必須</td></tr>
         <tr><td>E 安全確認</td><td>車いす・介助が必要／受診日 2 週間以内の発熱</td><td>常時</td><td>必須</td></tr>
         <tr><td>F 備考</td><td>ご質問・ご要望（全角 150 字）</td><td>常時</td><td>任意</td></tr>
       </tbody>
@@ -505,7 +515,7 @@
 
     <div class="mail">
       <div class="mail-head"><span>院内受付宛 &middot; 通知メール</span><b>kenshin-uketsuke@nk-toku.jp（仮）</b></div>
-      <pre>件名：【健診予約依頼】20261201-0001 長崎 花子 / 半日人間ドック
+      <pre>件名：【健診予約依頼】20261201-0001 長崎 花子 / スタンダード（1日）
 
 予約の依頼を受け付けました。折り返しお電話をお願いします。
 
@@ -522,9 +532,9 @@
 
 ■ ご希望
 　区分　　　：健康保険組合の補助を利用（○○健康保険組合／補助券あり）
-　コース　　：半日人間ドック
-　胃の検査　：胃カメラ（鎮静剤 希望する）
-　追加検査　：乳がん検査（マンモグラフィ）、骨密度
+　コース　　：スタンダード（1日）　￥40,700
+　追加検査　：胃カメラ（￥13,200）、マンモグラフィー（￥6,050）
+　鎮静剤　　：希望する　★当日の運転不可を案内済み
 
 ■ 希望日
 　第1希望　：2026-12-08（火）午前
@@ -558,7 +568,7 @@
 
 　受付番号　：20261201-0001
 　受付日時　：2026-12-01 21:14
-　ご希望コース：半日人間ドック
+　ご希望コース：スタンダード（1日）
 　第1希望　：2026-12-08（火）午前
 　第2希望　：2026-12-11（金）午前
 
@@ -583,10 +593,15 @@
     <ul>
       <li><strong>含まれる情報</strong>：氏名、フリガナ、生年月日、性別、電話番号、メール、保険証記号番号（区分による）、受診希望内容、安全確認 3 択の回答</li>
       <li><strong>要配慮個人情報</strong>：妊娠・体内金属・アレルギー・服薬は健康状態に関する情報。<strong>該当の有無（3 択）のみ</strong>を取得し、病名・薬剤名は取得しない</li>
-      <li><strong>保管場所</strong>：（仮）Google スプレッドシート。<strong>「リンクを知る全員」は使わず、8 名＋情シスの個人アカウントを個別に追加</strong></li>
-      <li><strong>アカウント</strong>：無償 Gmail の寄せ集めではなく Google Workspace を推奨。退職者のアカウントを病院が止められないため（<code>docs/05_台帳の限定共有.md</code>）</li>
-      <li><strong>保持期間</strong>：（仮）1 年。経過後は CSV へ退避してから台帳から削除</li>
+      <li><strong>保管場所</strong>：Google スプレッドシート。<strong>「リンクを知る全員」は使わず、8 名＋情シスの個人アカウントを個別に追加</strong></li>
+      <li><strong>アカウント</strong>：<em>Google Workspace の契約が承認条件</em>。無償 Gmail の寄せ集めは<strong>不可</strong>（退職者のアカウントを病院が止められないため）</li>
+      <li><strong>保持期間</strong>：<em>1 年（上限）</em>。経過後は CSV へ退避してから台帳から<strong>削除</strong>する</li>
     </ul>
+    <div class="note alarm">
+      <span class="note-label">2026-09-16 の承認に付いた 2 つの条件</span>
+      <p>クラウド利用の承認は無条件ではありません。<strong>Workspace 契約が前提</strong>であること、<strong>保持期間は 1 年まで</strong>であること —— この 2 つは「推奨」ではなく、<strong>満たさなければ承認自体が無効になる制約</strong>です。</p>
+      <p>特に保持期間は<strong>上限</strong>であって目安ではありません。放置すれば条件違反になるため、年次の CSV 退避と<strong>削除</strong>を <code>notify.gs</code> の時間主導トリガーに入れます。要件定義書にある「月 1 回 CSV エクスポート」はバックアップの話で、削除の話ではありません。<strong>退避と削除は別物です。</strong></p>
+    </div>
     <p>確定した健診の記録は既存の健診システム側が正本です。この台帳は<strong>予約依頼の受付記録</strong>であって、健診記録ではありません。</p>
   </section>
 
@@ -597,7 +612,9 @@
         <thead><tr><th>リスク</th><th>影響</th><th>対応</th></tr></thead>
         <tbody>
           <tr><td>受付可能日の更新が止まり、選べる日がなくなる</td><td style="color:var(--danger)">大</td><td>枯渇（7 日分未満）・未更新（3 日）を GAS が自動通知。枯渇時は電話案内へ切り替え</td></tr>
-          <tr><td>Google クラウド利用が規程上認められない</td><td style="color:var(--danger)">大</td><td>案 B へ全面切り替え。8 名の同時編集ができなくなるため、ステータス更新は当番制にする</td></tr>
+          <tr style="opacity:.62"><td><s>Google クラウド利用が規程上認められない</s></td><td style="color:var(--ok)">解消</td><td><strong>2026-09-16 に承認を取得したため解消。</strong>ただし承認条件（Workspace 契約・保持期間 1 年）を満たさなくなれば復活する</td></tr>
+          <tr><td>Workspace の契約が進まず、本番運用を開始できない</td><td style="color:var(--warn)">中</td><td>承認条件のため代替がない。事務長・情シスへ早めに費用と手続きを上げる（8 名＋情シス分）</td></tr>
+          <tr><td>保持期間 1 年を超えたデータが台帳に残り、承認条件違反になる</td><td style="color:var(--warn)">中</td><td>年次の CSV 退避＋<strong>削除</strong>を GAS の時間主導トリガーで自動化する。人手の運用だけに頼らない</td></tr>
           <tr><td>通知メールが迷惑メール判定され届かない</td><td style="color:var(--danger)">大</td><td>SPF を事前確認。試験時に 3 系統へ着信確認。<strong>加えて、台帳に 24 時間以上「未対応」があれば気づける運用にする</strong></td></tr>
           <tr><td>依頼が来ても誰も見ていない（休日明け等）</td><td style="color:var(--warn)">中</td><td>自動返信で「2 営業日以内」と明示して期待値を下げる。日次確認の当番を決める</td></tr>
           <tr><td>台帳から既存予約台帳への二重入力</td><td style="color:var(--warn)">中</td><td>当面は許容。台帳の列順を既存台帳に合わせ、転記を機械的にできる形にする</td></tr>
@@ -635,7 +652,7 @@
         <tbody>
           <tr><td class="num">1</td><td>電話番号・FAX・受付時間を実際の値に修正</td><td>対応済み</td><td>反映</td></tr>
           <tr><td class="num">2</td><td>住所・センター名を実際の表記に修正</td><td>対応済み</td><td>反映</td></tr>
-          <tr><td class="num">3</td><td>「呼吸器ドック」をコース一覧に追加</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映（要：正式名称の確認）</td></tr>
+          <tr><td class="num">3</td><td>「呼吸器ドック」をコース一覧に追加</td><td style="color:var(--danger)">根拠なし</td><td style="color:var(--danger)"><strong>取り下げ</strong>（下記参照）</td></tr>
           <tr><td class="num">4</td><td>安全確認に「受診日 2 週間以内の発熱」を追加</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
           <tr><td class="num">5</td><td>鎮静剤「希望する」で、車で来院できない旨を表示</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
           <tr><td class="num">6</td><td>乳腺・婦人科オプションの曜日制限</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映（注意表示のみ。選択は可能）</td></tr>
@@ -649,6 +666,29 @@
       <p>原本では「業者作業」と整理されていましたが、<strong>案 D ではフォームは GAS 側＝院内の実装範囲</strong>なので、これは自分で作る項目になります。02 タブの右上に付けた切り替えがその実装例です。</p>
     </div>
 
+    <div class="note alarm">
+      <span class="note-label">3 について &middot; 取り下げ（2026-09-16）</span>
+      <p><code>04_サイト調査メモ.md</code> §5 は about.php を根拠に「呼吸器内科医の入職により<strong>呼吸器ドックがコースに追加されている</strong>」と書いており、この資料も当初それに従って 02 タブへ追加していました。</p>
+      <p>しかし <strong>2026-09-16 時点の about.php・course.php・price.php のいずれにも呼吸器ドックの記載がありません。</strong>04 の記述が誤りだったか、サイトが更新されて消えたかのどちらかです。根拠の確認できないコースを選択肢に出すと、まさにこの案件が減らしたい「電話での訂正」を生むため、<em>選択肢から取り下げました</em>。健診部門への確認事項として 12 節に残しています。</p>
+    </div>
+
+    <h3>コース・オプション一覧の出どころ</h3>
+    <p>02 タブの選択肢は、<strong>公式サイトの記載（2026-09-16 取得）</strong>に合わせてあります。</p>
+    <div class="scroller">
+      <table class="t-narrow">
+        <thead><tr><th>取得元</th><th>使った内容</th></tr></thead>
+        <tbody>
+          <tr><td><code>/medical_checkup/course.php</code></td><td>コース名・料金・「大腸カメラは別日に再度来院」「乳腺・婦人科は水 10-12／金 14-16」</td></tr>
+          <tr><td><code>/medical_checkup/price.php</code></td><td>料金（course.php と一致することを確認）</td></tr>
+          <tr><td><code>/medical_checkup/option.php</code></td><td>オプション検査 12 項目と料金</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note caution">
+      <span class="note-label">既存資料との主な差分</span>
+      <p>既存の資料・モックには<strong>存在しないコースが 3 つ</strong>（定期健康診断Cコース、レディースドック、呼吸器ドック）含まれ、人間ドックの名称も「半日／Aコース／Bコース」という実物に無い表記でした。また<strong>「半日人間ドック」に胃部検査ありとしていたのは実物と真逆</strong>で、ライトは「胃カメラなし」です。オプションでは「ピロリ菌検査」としていたものが実物は<strong>ペプシノゲン</strong>（胃粘膜の萎縮を見る検査で別物）でした。</p>
+    </div>
+
     <h3>合意が必要な相手</h3>
     <div class="scroller">
       <table class="t-narrow">
@@ -656,7 +696,8 @@
         <tbody>
           <tr><td>個人情報保護担当・徳洲会本部</td><td>Google クラウド利用の可否、取得項目</td><td><strong>最優先</strong></td></tr>
           <tr><td>健診部門責任者</td><td>折り返し 2 営業日、日次確認の当番、受付可能日の更新当番</td><td>フェーズ 0</td></tr>
-          <tr><td>健診部門</td><td>正式なコース一覧（呼吸器ドックを含む）・料金</td><td>フェーズ 1</td></tr>
+          <tr><td>健診部門</td><td>サイトに記載が無いもの（呼吸器ドック・レディースドック・腫瘍マーカー・骨密度）の実在有無</td><td>フェーズ 1</td></tr>
+          <tr><td>事務長・情シス</td><td><strong>Google Workspace の契約</strong>（8 名＋情シス分）。承認条件のため必須</td><td><strong>本番公開前</strong></td></tr>
           <tr><td>健診受付 8 名</td><td>台帳の使い方、当番</td><td>試用時</td></tr>
           <tr><td>外部制作業者</td><td>リンク追加の見積・作業日数</td><td>公開前</td></tr>
         </tbody>
@@ -673,12 +714,17 @@
       <thead><tr><th class="num">#</th><th>項目</th><th>現在の仮置き</th><th>決める人</th><th>時期</th></tr></thead>
       <tbody>
         <tr style="opacity:.62"><td class="num">1</td><td>クラウドへの受診希望者情報の保管可否</td><td><strong style="color:var(--ok)">決定：可</strong></td><td>個人情報保護担当・本部</td><td style="color:var(--ok);font-weight:700">2026-09-16 承認取得。決定済み</td></tr>
-        <tr><td class="num">2</td><td>Google Workspace（有償）を使えるか</td><td>（仮）使う</td><td>事務長・情シス</td><td>フェーズ 0</td></tr>
-        <tr><td class="num">3</td><td>正式なコース一覧・料金（呼吸器ドック含む）</td><td>（仮）外部予約サイト掲載の内容</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr style="opacity:.62"><td class="num">2</td><td>Google Workspace（有償）を使えるか</td><td><strong style="color:var(--ok)">決定：契約が前提</strong>（承認条件。無償アカウント不可）</td><td>事務長・情シス</td><td style="color:var(--ok);font-weight:700">2026-09-16 決定済み</td></tr>
+        <tr><td class="num">3</td><td>正式なコース一覧・料金</td><td><strong>公式サイトから反映済み（2026-09-16）。</strong>残るのはサイトに記載が無い 呼吸器ドック／レディースドック／腫瘍マーカー／骨密度 の実在有無</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">3b</td><td>特定保健指導をこのフォームで受け付けるか</td><td>（仮）対象外。健診ではなく指導のため</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">3c</td><td>各オプションの絶食要否・時刻</td><td>（仮）胃カメラ・胃透視は絶食あり。サイトに記載が無く未確認</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">3d</td><td>造影剤アレルギーを聞く範囲</td><td>（仮）頭部MR／頭部CT／AI脳解析用MR+CQテスト のいずれか選択時。造影の要否が不明</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">3e</td><td>胃カメラと胃透視を同日に併用することがあるか</td><td>（仮）併用しない（排他にしている）</td><td>健診部門</td><td>フェーズ 1</td></tr>
         <tr><td class="num">4</td><td>安全確認を 3 択に留める方針</td><td>（仮）3 択とする</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
         <tr><td class="num">5</td><td>折り返し連絡の目安と日次確認の当番</td><td>（仮）2 営業日以内・当番制</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
         <tr><td class="num">6</td><td>受付可能日の更新当番と、確保する候補日数</td><td>（仮）日替わり当番／2 週間先まで最低 10 日分</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
-        <tr><td class="num">7</td><td>台帳データの保持期間</td><td>（仮）1 年</td><td>個人情報保護担当</td><td>フェーズ 0</td></tr>
+        <tr style="opacity:.62"><td class="num">7</td><td>台帳データの保持期間</td><td><strong style="color:var(--ok)">決定：1 年（上限）</strong>。経過後は CSV へ退避してから<strong>削除</strong></td><td>個人情報保護担当</td><td style="color:var(--ok);font-weight:700">2026-09-16 決定済み</td></tr>
+        <tr><td class="num">13</td><td><strong>Google Workspace の契約手続き</strong>（8 名＋情シス分）</td><td>未着手。承認条件のため必須</td><td>事務長・情シス</td><td style="color:var(--danger);font-weight:700">本番公開前</td></tr>
         <tr><td class="num">8</td><td>現在の電話件数（1 週間計測）</td><td>（仮）月 20〜100 件</td><td>健診受付</td><td>フェーズ 1</td></tr>
         <tr><td class="num">9</td><td>受付用メールアドレスの新設と 8 名の閲覧方法</td><td>（仮）専用アドレスを新設</td><td>情シス・健診部門</td><td>フェーズ 0</td></tr>
         <tr><td class="num">10</td><td>受付可能日 JSON を匿名公開してよいか</td><td>（仮）可（個人情報を含まない）</td><td>個人情報保護担当</td><td>フェーズ 0</td></tr>
@@ -697,7 +743,7 @@
 <div id="panel-form" role="tabpanel" aria-labelledby="tab-form" hidden>
   <div class="prose">
     <h2 style="margin-top:6px"><span class="sec">02</span>フォーム試作</h2>
-    <p>既存モックの項目・分岐を再現したうえで、未反映だった 3〜8 を反映しています。新しく足した箇所には <span class="newtag">反映</span> が付いています。</p>
+    <p>コース・オプション・料金は<strong>公式サイトの記載（2026-09-16 取得）</strong>に合わせてあります。既存モックの項目・分岐を再現したうえで、未反映だった項目を反映し、<strong>胃の検査をオプションに一本化</strong>しました。新しく足した箇所には <span class="newtag">反映</span>、確認待ちの推測には <span class="newtag">仮</span> が付いています。</p>
   </div>
 
   <div class="mock">
@@ -734,29 +780,35 @@
 
         <fieldset>
           <legend>2. ご希望のコース</legend>
-          <p class="hint">迷われる場合は「決めていない・相談したい」をお選びください。お電話で一緒に決めます。</p>
+          <p class="hint">迷われる場合は「決めていない・相談したい」をお選びください。お電話で一緒に決めます。<br>料金は 2026-09-16 時点のものです。改定される場合がありますので、目安としてご覧ください。</p>
           <div class="choice-row" id="courseRow"></div>
-          <div id="igiBlock" hidden>
-            <div class="cond">
-              <p class="condhead">胃の検査について</p>
-              <span class="qlabel">どちらをご希望ですか <span class="req">必須</span></span>
-              <div class="choice-row" id="igiRow" style="margin-top:7px"></div>
-              <div id="chinseiBlock" hidden style="margin-top:12px">
-                <span class="qlabel">鎮静剤（眠くなるお薬）のご希望 <span class="req">必須</span></span>
-                <div class="choice-row" id="chinseiRow" style="margin-top:7px"></div>
-                <div id="chinseiWarn" hidden class="cond warnish" style="margin-top:10px">
-                  <p class="condhead">ご注意 <span class="newtag">反映</span></p>
-                  <p style="margin:0;font-size:13.5px">鎮静剤を使用した場合、<strong>当日はお車・バイク・自転車でお帰りいただけません。</strong>公共交通機関をご利用になるか、ご家族の送迎をご手配ください。</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </fieldset>
 
         <fieldset>
           <legend>3. 追加の検査（任意）</legend>
-          <p class="hint">ご希望のものをお選びください。費用はお電話でご案内します。</p>
+          <p class="hint">セットに含まれていない検査を追加できます。<strong>胃の検査（胃カメラ・胃透視）もこちらでお選びください。</strong></p>
           <div class="choice-row" id="optionRow"></div>
+
+          <div id="chinseiBlock" hidden class="cond">
+            <p class="condhead">胃カメラをお選びの方へ</p>
+            <span class="qlabel">鎮静剤（眠くなるお薬）のご希望 <span class="req">必須</span></span>
+            <div class="choice-row" id="chinseiRow" style="margin-top:7px"></div>
+            <div id="chinseiWarn" hidden class="cond warnish" style="margin-top:10px">
+              <p class="condhead">ご注意</p>
+              <p style="margin:0;font-size:13.5px">鎮静剤を使用した場合、<strong>当日はお車・バイク・自転車でお帰りいただけません。</strong>公共交通機関をご利用になるか、ご家族の送迎をご手配ください。</p>
+            </div>
+          </div>
+
+          <div id="stomachNote" hidden class="cond warnish">
+            <p class="condhead">胃の検査についてのご注意 <span class="newtag">仮</span></p>
+            <p style="margin:0;font-size:13.5px">胃カメラ・胃透視は、<strong>受診前の絶食が必要です。</strong>具体的な時刻は折り返しのお電話でご案内します。<br><span style="color:var(--muted)">※ 絶食の要否・時刻は公式サイトに記載が無いため、健診部門への確認待ちです。</span></p>
+          </div>
+
+          <div id="colonWarn" hidden class="cond warnish">
+            <p class="condhead">大腸カメラについてのご注意 <span class="newtag">反映</span></p>
+            <p style="margin:0;font-size:13.5px">大腸カメラをご希望の方は、<strong>健診とは別日に再度ご来院いただきます。</strong>1泊2日のエグゼクティブをお選びの場合は、1日目または2日目に実施します。日程はお電話で調整します。</p>
+          </div>
+
           <div id="fujinkaWarn" hidden class="cond warnish">
             <p class="condhead">実施日についてのご注意 <span class="newtag">反映</span></p>
             <p style="margin:0;font-size:13.5px">乳腺・婦人科の検査は<strong>水曜 10:00〜12:00 と金曜 14:00〜16:00</strong> に限って実施しています。ご希望日によっては別の日をご案内する場合があります。<strong>お申し込みはそのまま進めていただけます。</strong>日程はお電話で調整します。</p>
@@ -861,7 +913,7 @@
               <th><span class="col">M</span>連絡希望</th>
               <th><span class="col">O/P</span>第1希望</th>
               <th><span class="col">U</span>希望コース</th>
-              <th><span class="col">V/W</span>胃部検査</th>
+              <th><span class="col">X/W</span>追加検査・鎮静剤</th>
               <th><span class="col">Y</span>妊娠等</th>
               <th><span class="col">AB</span>血液サラサラ</th>
               <th><span class="col">AC</span>車いす</th>
@@ -1023,42 +1075,54 @@
     { v: "わからない", l: "わからない", s: "お電話で一緒に確認します", extra: null }
   ];
 
+  // コース・オプション・料金は公式サイト（course.php / price.php / option.php）2026-09-16 取得。
+  // 実装時は gas/config.gs に同じ形で移し、コード中に直書きしないこと。
   var COURSES = [
-    { v: "定期健康診断（Aコース）", s: "35歳・40歳以上の方向け", igi: true },
-    { v: "定期健康診断（Bコース）", s: "", igi: false },
-    { v: "定期健康診断（Cコース）", s: "", igi: false },
-    { v: "生活習慣病予防検診", s: "", igi: true },
-    { v: "半日人間ドック", s: "所要時間 約2時間", igi: true },
-    { v: "スタンダード人間ドック（Aコース）", s: "所要時間 約3時間", igi: true },
-    { v: "プレミアム人間ドック（Bコース）", s: "頭部CT検査つき", igi: true },
-    { v: "エグゼクティブ人間ドック（Cコース・1泊2日）", s: "1泊2日／脳ドック・心臓超音波つき", igi: true },
-    { v: "脳ドック", s: "", igi: false },
-    { v: "呼吸器ドック", s: "呼吸器内科医が担当します", igi: false, isNew: true },
-    { v: "レディースドック", s: "人間ドックに婦人科の検査を組み合わせたコース", igi: true },
-    { v: "決めていない・相談したい", s: "お電話で一緒に決めます", igi: false }
+    { v: "ライト（半日・胃カメラなし）", s: "半日。胃カメラは含みません", price: 27500 },
+    { v: "スタンダード（1日）", s: "1日", price: 40700 },
+    { v: "プレミアム（1日）", s: "1日", price: 51700 },
+    { v: "エグゼクティブ（1泊2日）", s: "1泊2日", price: 93500 },
+    { v: "脳ドック（半日）", s: "半日", price: 53900 },
+    { v: "定期健康診断A", s: "法定健診", price: 8250 },
+    { v: "定期健康診断B", s: "法定健診", price: 3300 },
+    { v: "生活習慣病予防健診", s: "", price: 24200 },
+    { v: "特定健診", s: "", priceNote: "加入している健康保険組合により異なります" },
+    { v: "がん検診", s: "", priceNote: "各市町村により異なります" },
+    { v: "決めていない・相談したい", s: "お電話で一緒に決めます" }
   ];
 
   var OPTIONS = [
-    { v: "子宮頸がん検査", fujinka: true },
-    { v: "乳がん検査（マンモグラフィ）", fujinka: true },
-    { v: "乳房超音波", fujinka: true },
-    { v: "腫瘍マーカー" },
-    { v: "頭部CT・MRI", ct: true },
-    { v: "心臓超音波" },
-    { v: "骨密度" },
-    { v: "ピロリ菌検査" }
+    { v: "腹部エコー", price: 6050 },
+    { v: "心臓エコー", price: 9900 },
+    { v: "頭部MR", price: 22000, mr: true },
+    { v: "AI脳解析用MR+CQテスト", price: 38500, mr: true },
+    { v: "頭部CT", price: 11000, ct: true },
+    { v: "胃カメラ", price: 13200, endo: true, stomach: true },
+    { v: "大腸カメラ", price: 17600, colon: true },
+    { v: "胃透視", price: 11000, stomach: true },
+    { v: "ペプシノゲン", price: 3300 },
+    { v: "子宮頸部", price: 3850, fujinka: true },
+    { v: "マンモグラフィー", price: 6050, fujinka: true },
+    { v: "乳房エコー", price: 5500, fujinka: true }
   ];
 
   var SAFETY = [
     { k: "ninshin", q: "妊娠中・妊娠の可能性・授乳中", cond: "female", opts: ["該当あり", "該当なし", "わからない"] },
-    { k: "kinzoku", q: "ペースメーカー・体内の金属・刺青", cond: "ct", opts: ["該当あり", "該当なし", "わからない"] },
-    { k: "zoei", q: "造影剤でアレルギーが出たことがある", cond: "ct", opts: ["該当あり", "該当なし", "わからない"] },
+    // 体内金属・ペースメーカーは MR に関わる確認。頭部CT のみでは聞かない
+    { k: "kinzoku", q: "ペースメーカー・体内の金属・刺青", cond: "mr", opts: ["該当あり", "該当なし", "わからない"] },
+    { k: "zoei", q: "造影剤でアレルギーが出たことがある", cond: "mrct", opts: ["該当あり", "該当なし", "わからない"] },
     { k: "kessen", q: "血をサラサラにするお薬を飲んでいる", cond: "endo", opts: ["該当あり", "該当なし", "わからない"] },
     { k: "kaijo", q: "車いすのご利用・介助が必要", cond: "always", opts: ["必要", "不要", "わからない"] },
     { k: "netsu", q: "受診日から 2 週間以内に発熱・咳などの症状", cond: "always", opts: ["該当あり", "該当なし", "わからない"], isNew: true }
   ];
 
-  var state = { kubun: "", course: "", igi: "", chinsei: "", sex: "", options: [], safety: {}, wishes: [], calMonth: null, pendingDate: null };
+  function yen(n) { return "￥" + n.toLocaleString("ja-JP"); }
+  function optByName(v) { return OPTIONS.filter(function (o) { return o.v === v; })[0]; }
+  function anyOpt(flag) {
+    return state.options.some(function (v) { var o = optByName(v); return !!(o && o[flag]); });
+  }
+
+  var state = { kubun: "", course: "", chinsei: "", sex: "", options: [], safety: {}, wishes: [], calMonth: null, pendingDate: null };
 
   function radioRow(container, name, items, onPick, current) {
     container.innerHTML = "";
@@ -1074,6 +1138,8 @@
       if (it.isNew) { var tag = mk("span", "newtag", "反映"); tag.style.marginLeft = "6px"; t.appendChild(tag); }
       cl.appendChild(t);
       if (it.s) cl.appendChild(mk("span", "cs", it.s));
+      if (it.price) cl.appendChild(mk("span", "cp", yen(it.price)));
+      else if (it.priceNote) cl.appendChild(mk("span", "cs", it.priceNote));
       label.appendChild(input); label.appendChild(cl);
       container.appendChild(label);
     });
@@ -1121,53 +1187,66 @@
     box.appendChild(cond);
   }
 
-  // コース
+  // コース（胃の検査による出し分けは 2026-09-16 に廃止。胃カメラ・胃透視はオプション側）
   function pickCourse(v) {
     state.course = v;
     radioRow(document.getElementById("courseRow"), "course", COURSES, pickCourse, v);
-    var c = COURSES.filter(function (x) { return x.v === v; })[0];
-    var hasIgi = !!(c && c.igi);
-    document.getElementById("igiBlock").hidden = !hasIgi;
-    if (!hasIgi) { state.igi = ""; state.chinsei = ""; }
-    renderIgi();
-    renderSafety();
   }
   radioRow(document.getElementById("courseRow"), "course", COURSES, pickCourse, "");
 
-  function renderIgi() {
-    radioRow(document.getElementById("igiRow"), "igi",
-      [{ v: "胃カメラ" }, { v: "バリウム" }, { v: "希望しない" }],
-      function (v) { state.igi = v; renderIgi(); renderSafety(); }, state.igi);
-    var isEndo = state.igi === "胃カメラ";
+  // 追加検査
+  function renderOptions() {
+    var row = document.getElementById("optionRow");
+    row.innerHTML = "";
+    OPTIONS.forEach(function (o, i) {
+      var sel = state.options.indexOf(o.v) !== -1;
+      var label = mk("label", "choice" + (sel ? " sel" : ""));
+      var input = document.createElement("input");
+      input.type = "checkbox"; input.id = "opt_" + i; input.value = o.v; input.checked = sel;
+      input.addEventListener("change", function () { toggleOption(o.v, input.checked); });
+      var cl = mk("span", "cl");
+      cl.appendChild(mk("span", null, o.v));
+      if (o.price) cl.appendChild(mk("span", "cp", yen(o.price)));
+      label.appendChild(input);
+      label.appendChild(cl);
+      row.appendChild(label);
+    });
+  }
+
+  function toggleOption(v, on) {
+    var o = optByName(v);
+    if (on) {
+      // 胃カメラと胃透視は同日に両方は実施しない想定（仮）。片方を選ぶともう片方は外れる
+      if (o && o.stomach) {
+        state.options = state.options.filter(function (x) {
+          var t = optByName(x);
+          return !(t && t.stomach);
+        });
+      }
+      if (state.options.indexOf(v) === -1) state.options.push(v);
+    } else {
+      state.options = state.options.filter(function (x) { return x !== v; });
+    }
+    renderOptions();
+    renderOptionNotices();
+    renderSafety();
+  }
+
+  function renderOptionNotices() {
+    document.getElementById("fujinkaWarn").hidden = !anyOpt("fujinka");
+    document.getElementById("colonWarn").hidden = !anyOpt("colon");
+    document.getElementById("stomachNote").hidden = !anyOpt("stomach");
+
+    var isEndo = anyOpt("endo");
     document.getElementById("chinseiBlock").hidden = !isEndo;
     if (!isEndo) state.chinsei = "";
     radioRow(document.getElementById("chinseiRow"), "chinsei",
       [{ v: "希望する" }, { v: "希望しない" }, { v: "相談したい" }],
-      function (v) { state.chinsei = v; renderIgi(); }, state.chinsei);
+      function (v) { state.chinsei = v; renderOptionNotices(); }, state.chinsei);
     document.getElementById("chinseiWarn").hidden = state.chinsei !== "希望する";
   }
-
-  // 追加検査
-  (function renderOptions() {
-    var row = document.getElementById("optionRow");
-    OPTIONS.forEach(function (o, i) {
-      var label = mk("label", "choice");
-      var input = document.createElement("input");
-      input.type = "checkbox"; input.id = "opt_" + i; input.value = o.v;
-      input.addEventListener("change", function () {
-        state.options = OPTIONS.filter(function (x, j) {
-          return document.getElementById("opt_" + j).checked;
-        }).map(function (x) { return x.v; });
-        label.classList.toggle("sel", input.checked);
-        var anyF = OPTIONS.some(function (x, j) { return x.fujinka && document.getElementById("opt_" + j).checked; });
-        document.getElementById("fujinkaWarn").hidden = !anyF;
-        renderSafety();
-      });
-      label.appendChild(input);
-      label.appendChild(mk("span", "cl", o.v));
-      row.appendChild(label);
-    });
-  })();
+  renderOptions();
+  renderOptionNotices();
 
   // 性別
   var SEX = [{ v: "男性" }, { v: "女性" }];
@@ -1182,8 +1261,9 @@
   function safetyVisible(item) {
     if (item.cond === "always") return true;
     if (item.cond === "female") return state.sex === "女性";
-    if (item.cond === "ct") return state.options.indexOf("頭部CT・MRI") !== -1;
-    if (item.cond === "endo") return state.igi === "胃カメラ";
+    if (item.cond === "mr") return anyOpt("mr");                  // 体内金属は MR のみ
+    if (item.cond === "mrct") return anyOpt("mr") || anyOpt("ct"); // 造影剤（要否は未確認・仮）
+    if (item.cond === "endo") return anyOpt("endo");              // 胃カメラはオプション側
     return false;
   }
   function renderSafety() {
@@ -1354,9 +1434,7 @@
     var miss = [];
     if (!state.kubun) miss.push("お申し込みの区分");
     if (!state.course) miss.push("ご希望のコース");
-    var c = COURSES.filter(function (x) { return x.v === state.course; })[0];
-    if (c && c.igi && !state.igi) miss.push("胃の検査");
-    if (state.igi === "胃カメラ" && !state.chinsei) miss.push("鎮静剤のご希望");
+    if (anyOpt("endo") && !state.chinsei) miss.push("鎮静剤のご希望");
     if (!val("fName")) miss.push("お名前");
     if (!val("fKana")) miss.push("フリガナ");
     else if (!/^[ァ-ヶー\s　]+$/.test(val("fKana"))) miss.push("フリガナ（カタカナでご入力ください）");
@@ -1400,9 +1478,16 @@
 
     var rows = [];
     rows.push(["お申し込みの区分", state.kubun]);
-    rows.push(["ご希望のコース", state.course]);
-    if (state.igi) rows.push(["胃の検査", state.igi + (state.chinsei ? "（鎮静剤 " + state.chinsei + "）" : "")]);
-    rows.push(["追加の検査", state.options.length ? state.options.join("、") : "なし"]);
+    var cObj = COURSES.filter(function (x) { return x.v === state.course; })[0];
+    rows.push(["ご希望のコース", state.course +
+      (cObj && cObj.price ? "　" + yen(cObj.price) : (cObj && cObj.priceNote ? "　" + cObj.priceNote : ""))]);
+    rows.push(["追加の検査", state.options.length
+      ? state.options.map(function (v) {
+          var o = optByName(v);
+          return v + (o && o.price ? "（" + yen(o.price) + "）" : "");
+        }).join("、")
+      : "なし"]);
+    if (state.chinsei) rows.push(["鎮静剤のご希望", state.chinsei]);
     rows.push(["お名前", val("fName") + "（" + val("fKana") + "）"]);
     rows.push(["生年月日・性別", val("fBirth") + " / " + state.sex]);
     rows.push(["電話番号", val("fTel")]);
@@ -1428,17 +1513,13 @@
 
   document.getElementById("resetBtn").addEventListener("click", function () {
     document.getElementById("applyForm").reset();
-    state.kubun = ""; state.course = ""; state.igi = ""; state.chinsei = "";
+    state.kubun = ""; state.course = ""; state.chinsei = "";
     state.sex = ""; state.options = []; state.safety = {}; state.wishes = []; state.pendingDate = null;
     radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, pickKubun, "");
     document.getElementById("kubunExtra").innerHTML = "";
     pickCourse("");
-    document.getElementById("igiBlock").hidden = true;
-    document.getElementById("fujinkaWarn").hidden = true;
-    OPTIONS.forEach(function (o, i) {
-      var el = document.getElementById("opt_" + i);
-      el.checked = false; el.parentNode.classList.remove("sel");
-    });
+    renderOptions();
+    renderOptionNotices();
     radioRow(document.getElementById("sexRow"), "sex", SEX, pickSex, "");
     renderSafety(); renderCalendar();
     document.getElementById("confirmBox").hidden = true;
@@ -1453,31 +1534,31 @@
   var LEDGER = [
     { no: "20261201-0001", at: hoursAgo(38), st: "未対応", by: "", fixed: "", fcourse: "",
       name: "長崎 花子", tel: "090-0000-0001", jikan: "夕方以降", d1: "12-08 午前",
-      course: "半日人間ドック", igi: "胃カメラ／鎮静剤 希望する",
+      course: "スタンダード（1日）", opt: "胃カメラ／鎮静剤 希望する、マンモグラフィー",
       ninshin: "該当なし", kessen: "わからない", kaijo: "不要" },
     { no: "20261201-0002", at: hoursAgo(30), st: "未対応", by: "", fixed: "", fcourse: "",
       name: "諫早 健一", tel: "090-0000-0002", jikan: "午前", d1: "12-09 午前",
-      course: "脳ドック", igi: "",
+      course: "脳ドック（半日）", opt: "",
       ninshin: "", kessen: "", kaijo: "不要" },
     { no: "20261202-0001", at: hoursAgo(20), st: "連絡中", by: "山田", fixed: "", fcourse: "",
       name: "大村 さつき", tel: "080-0000-0003", jikan: "いつでも", d1: "12-11 午後",
-      course: "レディースドック", igi: "バリウム",
+      course: "プレミアム（1日）", opt: "胃透視、子宮頸部、乳房エコー",
       ninshin: "わからない", kessen: "", kaijo: "不要" },
-    { no: "20261202-0002", at: hoursAgo(14), st: "予約確定", by: "山田", fixed: "12-15 10:20", fcourse: "生活習慣病予防検診",
+    { no: "20261202-0002", at: hoursAgo(14), st: "予約確定", by: "山田", fixed: "12-15 10:20", fcourse: "生活習慣病予防健診",
       name: "時津 学", tel: "095-000-0004", jikan: "午後", d1: "12-16 午前",
-      course: "生活習慣病予防検診", igi: "バリウム",
+      course: "生活習慣病予防健診", opt: "胃透視",
       ninshin: "", kessen: "", kaijo: "不要" },
     { no: "20261202-0003", at: hoursAgo(8), st: "未対応", by: "", fixed: "", fcourse: "",
       name: "長与 みどり", tel: "080-0000-0005", jikan: "午前", d1: "12-18 午前",
-      course: "プレミアム人間ドック（Bコース）", igi: "胃カメラ／鎮静剤 相談したい",
+      course: "エグゼクティブ（1泊2日）", opt: "胃カメラ／鎮静剤 相談したい、大腸カメラ（別日）",
       ninshin: "該当あり", kessen: "該当なし", kaijo: "不要" },
     { no: "20261203-0001", at: hoursAgo(3), st: "未対応", by: "", fixed: "", fcourse: "",
       name: "西彼 太郎", tel: "090-0000-0006", jikan: "夕方以降", d1: "12-19 午前",
-      course: "決めていない・相談したい", igi: "",
+      course: "決めていない・相談したい", opt: "",
       ninshin: "", kessen: "", kaijo: "必要" },
     { no: "20261130-0004", at: hoursAgo(72), st: "不成立", by: "鈴木", fixed: "", fcourse: "",
       name: "佐世保 陽", tel: "090-0000-0007", jikan: "午後", d1: "12-05 午前",
-      course: "半日人間ドック", igi: "希望しない",
+      course: "ライト（半日・胃カメラなし）", opt: "",
       ninshin: "該当なし", kessen: "", kaijo: "不要" }
   ];
 
@@ -1528,7 +1609,7 @@
       td(r.jikan);
       td(r.d1, "num");
       td(r.course);
-      td(r.igi || "—");
+      td(r.opt || "—");
       td(r.ninshin || "—", isFlag(r.ninshin) ? "flag" : "");
       td(r.kessen || "—", isFlag(r.kessen) ? "flag" : "");
       td(r.kaijo || "—", isFlag(r.kaijo) ? "flag" : "");
