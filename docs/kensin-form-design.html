@@ -1079,11 +1079,12 @@
   }
 
   // 区分
-  radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, function (v) {
+  function pickKubun(v) {
     state.kubun = v;
-    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, arguments.callee, v);
+    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, pickKubun, v);
     renderKubunExtra();
-  }, "");
+  }
+  radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, pickKubun, "");
 
   function renderKubunExtra() {
     var box = document.getElementById("kubunExtra");
@@ -1168,11 +1169,13 @@
   })();
 
   // 性別
-  radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], function (v) {
+  var SEX = [{ v: "男性" }, { v: "女性" }];
+  function pickSex(v) {
     state.sex = v;
-    radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], arguments.callee, v);
+    radioRow(document.getElementById("sexRow"), "sex", SEX, pickSex, v);
     renderSafety();
-  }, "");
+  }
+  radioRow(document.getElementById("sexRow"), "sex", SEX, pickSex, "");
 
   // 安全確認
   function safetyVisible(item) {
@@ -1426,9 +1429,7 @@
     document.getElementById("applyForm").reset();
     state.kubun = ""; state.course = ""; state.igi = ""; state.chinsei = "";
     state.sex = ""; state.options = []; state.safety = {}; state.wishes = []; state.pendingDate = null;
-    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, function (v) {
-      state.kubun = v; renderKubunExtra();
-    }, "");
+    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, pickKubun, "");
     document.getElementById("kubunExtra").innerHTML = "";
     pickCourse("");
     document.getElementById("igiBlock").hidden = true;
@@ -1437,9 +1438,7 @@
       var el = document.getElementById("opt_" + i);
       el.checked = false; el.parentNode.classList.remove("sel");
     });
-    radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], function (v) {
-      state.sex = v; renderSafety();
-    }, "");
+    radioRow(document.getElementById("sexRow"), "sex", SEX, pickSex, "");
     renderSafety(); renderCalendar();
     document.getElementById("confirmBox").hidden = true;
   });
