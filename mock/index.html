@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>健診・人間ドック 予約依頼フォーム（モック）</title>
+<style>
+:root{
+  --ink:#202b30;
+  --muted:#5c6b72;
+  --line:#ccd6da;
+  --tint:#eef4f6;
+  --accent:#0b6b7a;
+  --accent-dark:#084e59;
+  --caution:#8a4b00;
+  --caution-bg:#fdf6ec;
+  --error:#b3261e;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Yu Gothic","Noto Sans JP",Meiryo,sans-serif;
+  font-size:17px;
+  line-height:1.75;
+  color:var(--ink);
+  background:#f2f5f6;
+}
+.wrap{max-width:660px;margin:0 auto;background:#fff;min-height:100vh;}
+.mockbar{background:#3b3b3b;color:#fff;font-size:13px;line-height:1.6;padding:10px 20px;}
+.mockbar b{color:#ffd479;}
+header.page{padding:28px 20px 20px;border-bottom:1px solid var(--line);}
+header.page h1{font-size:23px;line-height:1.5;margin:0 0 8px;font-weight:700;}
+header.page p{margin:0;font-size:15px;color:var(--muted);}
+.tel{
+  margin:16px 20px 0;padding:14px 16px;background:var(--tint);
+  border-left:4px solid var(--accent);font-size:15px;line-height:1.7;
+}
+.tel strong{font-size:20px;letter-spacing:.02em;}
+main{padding:8px 20px 60px;}
+section.fs{border:0;padding:0;margin:32px 0 0;}
+section.fs > h2{
+  font-size:18px;margin:0 0 4px;padding-bottom:8px;
+  border-bottom:2px solid var(--accent);font-weight:700;
+}
+section.fs > .note{font-size:14px;color:var(--muted);margin:8px 0 0;}
+.field{margin-top:24px;}
+.field > label.q,.field > .q{display:block;font-weight:700;font-size:16px;margin-bottom:8px;}
+.req,.opt{
+  display:inline-block;font-size:12px;font-weight:700;line-height:1;
+  padding:4px 6px;border-radius:2px;margin-left:8px;vertical-align:2px;
+}
+.req{background:var(--error);color:#fff;}
+.opt{background:#e5eaec;color:var(--muted);}
+.hint{font-size:14px;color:var(--muted);margin:0 0 8px;}
+input[type=text],input[type=tel],input[type=email],input[type=date],select,textarea{
+  width:100%;font-family:inherit;font-size:17px;color:var(--ink);
+  padding:12px;border:1px solid #9aa9b0;border-radius:4px;background:#fff;
+  min-height:50px;
+}
+textarea{min-height:110px;resize:vertical;}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 22px,calc(100% - 14px) 22px;background-size:6px 6px;background-repeat:no-repeat;}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--accent);outline-offset:1px;}
+.row2{display:flex;gap:12px;}
+.row2 > *{flex:1;min-width:0;}
+.choices{display:flex;flex-direction:column;gap:8px;}
+.choices.inline{flex-direction:row;flex-wrap:wrap;gap:10px;}
+.choice{
+  display:flex;align-items:flex-start;gap:10px;
+  border:1px solid var(--line);border-radius:4px;padding:12px 14px;
+  min-height:50px;cursor:pointer;background:#fff;
+}
+.choices.inline .choice{flex:0 1 auto;min-width:112px;}
+.choice input{margin:4px 0 0;width:20px;height:20px;flex:none;accent-color:var(--accent);}
+.choice:has(input:checked){border-color:var(--accent);background:var(--tint);box-shadow:inset 0 0 0 1px var(--accent);}
+.choice:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:1px;}
+.choice .cl{font-size:16px;line-height:1.5;}
+.choice .cs{display:block;font-size:13px;color:var(--muted);margin-top:2px;}
+.cond{
+  margin-top:16px;padding:16px 16px 20px;background:var(--tint);
+  border-left:4px solid var(--accent);
+}
+.cond > .condhead{font-size:14px;font-weight:700;color:var(--accent-dark);margin:0;}
+.cond .field:first-of-type{margin-top:12px;}
+.safety{background:var(--caution-bg);border-left:4px solid var(--caution);padding:4px 16px 20px;margin-top:16px;}
+.safety .field > .q{color:var(--caution);}
+.err{display:none;color:var(--error);font-size:14px;font-weight:700;margin-top:6px;}
+.field.invalid .err{display:block;}
+.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--error);border-width:2px;}
+.hp{position:absolute;left:-9999px;}
+.actions{margin-top:40px;display:flex;flex-direction:column;gap:12px;}
+button{font-family:inherit;font-size:18px;font-weight:700;border-radius:4px;cursor:pointer;padding:16px;min-height:56px;border:2px solid var(--accent);}
+button.primary{background:var(--accent);color:#fff;}
+button.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+button.ghost{background:#fff;color:var(--accent);}
+button:focus-visible{outline:3px solid var(--caution);outline-offset:2px;}
+.summary{width:100%;border-collapse:collapse;margin-top:16px;font-size:16px;}
+.summary th,.summary td{border-bottom:1px solid var(--line);padding:12px 4px;text-align:left;vertical-align:top;}
+.summary th{width:38%;font-weight:700;background:#fafcfc;}
+.summary tr.flag td{color:var(--caution);font-weight:700;}
+.errbox{display:none;border:2px solid var(--error);padding:14px 16px;margin-top:20px;color:var(--error);font-weight:700;font-size:15px;}
+.errbox.on{display:block;}
+.done{text-align:center;padding:40px 0 8px;}
+.done .num{font-size:15px;color:var(--muted);margin-top:20px;}
+.done .num strong{display:block;font-size:28px;color:var(--ink);letter-spacing:.06em;margin-top:4px;}
+.devpanel{margin:48px 20px 40px;border:2px dashed #9aa9b0;background:#fbfcfc;}
+.devpanel h3{margin:0;padding:12px 16px;font-size:15px;background:#3b3b3b;color:#fff;}
+.devpanel .tabs{display:flex;border-bottom:1px solid var(--line);}
+.devpanel .tabs button{flex:1;border:0;border-radius:0;background:#e9eef0;color:var(--muted);font-size:14px;padding:12px;min-height:0;}
+.devpanel .tabs button[aria-selected=true]{background:#fff;color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent);}
+.devpanel pre{margin:0;padding:16px;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-all;font-family:"SFMono-Regular",Consolas,"Osaka-Mono",monospace;overflow-x:auto;}
+.devpanel .cap{font-size:13px;color:var(--muted);padding:0 16px 14px;margin:0;}
+.hidden{display:none !important;}
+/* ---- 受付可能日カレンダー ---- */
+.calbox{border:1px solid var(--line);border-radius:4px;margin-top:16px;overflow:hidden;}
+.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;background:var(--tint);border-bottom:1px solid var(--line);}
+.calhead .m{font-size:17px;font-weight:700;}
+.calhead button{font-size:15px;padding:10px 14px;min-height:44px;border-width:1px;background:#fff;color:var(--accent);}
+.calhead button[disabled]{color:#9aa9b0;border-color:var(--line);cursor:default;}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);padding:1px;}
+.calgrid .dow{background:#fff;text-align:center;font-size:13px;color:var(--muted);padding:8px 0;font-weight:700;}
+.calgrid .dow.sun{color:#b3261e;}
+.calgrid .dow.sat{color:#1a5fa8;}
+.calgrid .cell{background:#fff;min-height:56px;padding:0;border:0;border-radius:0;font-size:16px;font-weight:400;color:#b8c3c8;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.calgrid .cell.ok{color:var(--ink);cursor:pointer;font-weight:700;}
+.calgrid .cell.ok .mark{font-size:12px;color:var(--accent);font-weight:700;}
+.calgrid .cell.ok:hover{background:var(--tint);}
+.calgrid .cell.picked{background:var(--accent);color:#fff;}
+.calgrid .cell.picked .mark{color:#fff;}
+.calgrid .cell.active{box-shadow:inset 0 0 0 3px var(--caution);}
+.calgrid .cell.empty{background:#fafcfc;}
+.callegend{font-size:14px;color:var(--muted);margin:10px 0 0;}
+.timepick{border-top:1px solid var(--line);padding:14px;background:var(--tint);}
+.timepick p{margin:0 0 10px;font-weight:700;font-size:15px;}
+.timepick .btns{display:flex;gap:10px;flex-wrap:wrap;}
+.timepick .btns button{flex:1 1 auto;min-width:120px;font-size:16px;padding:12px;min-height:50px;}
+.wishlist{list-style:none;margin:12px 0 0;padding:0;counter-reset:w;}
+.wishlist li{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:8px;font-size:16px;}
+.wishlist li .rank{flex:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;padding:4px 8px;border-radius:2px;}
+.wishlist li .d{flex:1;}
+.wishlist li button{flex:none;font-size:14px;padding:8px 12px;min-height:40px;border-width:1px;background:#fff;color:var(--muted);border-color:var(--line);}
+.wishempty{font-size:15px;color:var(--muted);margin:12px 0 0;}
+.calstop{border:2px solid var(--error);padding:16px;margin-top:16px;font-size:16px;line-height:1.8;}
+.calstop strong{font-size:20px;}
+@media (max-width:480px){
+  body{font-size:16px;}
+  .row2{flex-direction:column;gap:16px;}
+}
+@media (prefers-reduced-motion:no-preference){
+  .cond{animation:reveal .18s ease-out;}
+  @keyframes reveal{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mockbar">
+  <b>これは業者提示用のモックです。</b> 実際の送信は行いません。デザインは既存サイトのCSSに置き換える前提で、<b>項目・分岐・検証・メール本文の形式</b>が仕様の本体です。ページ下部に、送信される2通のメール本文が実データで表示されます。
+</div>
+
+<header class="page">
+  <h1>健診・人間ドック 予約依頼フォーム</h1>
+  <p>ご希望の内容をお送りいただくと、担当者から折り返しお電話し、日程を確定します。このフォームの送信だけでは予約は確定しません。</p>
+</header>
+
+<div class="tel">
+  お急ぎの方、入力にお困りの方はお電話ください。<br>
+  健康管理センター <strong>095-813-5820</strong>（直通）<br>
+  FAX 095-813-5821<br>
+  電話受付時間 9:00〜16:30（月〜土）　日曜・祝日・年末年始は休みです
+</div>
+
+<main>
+
+<!-- ============ 画面1：入力 ============ -->
+<div id="screen-form">
+<form id="f" novalidate>
+
+  <!-- 事業所向けの別導線 -->
+  <div class="cond" style="margin-top:24px;border-left-color:var(--muted);background:#f4f6f7;">
+    <p class="condhead" style="color:var(--ink);">事業所・団体でまとめてお申し込みの方</p>
+    <p style="margin:8px 0 0;font-size:15px;">複数名分のお申し込みは、こちらのフォームでは受け付けていません。<a href="#">事業所健診のご案内</a>をご覧ください。</p>
+  </div>
+
+  <section class="fs">
+    <h2>1. お申し込みの区分</h2>
+    <div class="field" id="fld-kubun">
+      <span class="q">費用のお支払い方法にあたるものをお選びください<span class="req">必須</span></span>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="kubun" value="個人（全額自己負担）"><span class="cl">個人でのお申し込み<span class="cs">費用は全額ご自身の負担になります</span></span></label>
+        <label class="choice"><input type="radio" name="kubun" value="協会けんぽ 生活習慣病予防検診"><span class="cl">協会けんぽの生活習慣病予防検診<span class="cs">保険証に「全国健康保険協会」と書かれている方</span></span></label>
+        <label class="choice"><input type="radio" name="kubun" value="健康保険組合の補助を利用"><span class="cl">健康保険組合の補助を使う</span></label>
+        <label class="choice"><input type="radio" name="kubun" value="自治体の特定健診・がん検診"><span class="cl">市や町の特定健診・がん検診<span class="cs">受診券が届いている方</span></span></label>
+        <label class="choice"><input type="radio" name="kubun" value="わからない"><span class="cl">わからない<span class="cs">お電話で一緒に確認します</span></span></label>
+      </div>
+      <p class="err">お申し込みの区分をお選びください。</p>
+    </div>
+
+    <div class="cond hidden" data-cond="kubun:個人（全額自己負担）">
+      <p class="condhead">個人でのお申し込みについて</p>
+      <div class="field" id="fld-shiharai">
+        <span class="q">当日のお支払い方法<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="shiharai" value="現金"><span class="cl">現金</span></label>
+          <label class="choice"><input type="radio" name="shiharai" value="クレジットカード"><span class="cl">クレジットカード</span></label>
+          <label class="choice"><input type="radio" name="shiharai" value="未定"><span class="cl">未定</span></label>
+        </div>
+        <p class="err">お支払い方法をお選びください。</p>
+      </div>
+    </div>
+
+    <div class="cond hidden" data-cond="kubun:協会けんぽ 生活習慣病予防検診">
+      <p class="condhead">協会けんぽをご利用の方</p>
+      <div class="field" id="fld-hokensho">
+        <label class="q" for="hokensho">保険証の記号・番号<span class="req">必須</span></label>
+        <p class="hint">保険証の表面に書かれています。例：12345678・901</p>
+        <input type="text" id="hokensho" name="hokensho" autocomplete="off">
+        <p class="err">保険証の記号・番号をご入力ください。</p>
+      </div>
+      <div class="field" id="fld-fuyou">
+        <span class="q">ご家族（被扶養者）も一緒に受診されますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="fuyou" value="あり"><span class="cl">はい</span></label>
+          <label class="choice"><input type="radio" name="fuyou" value="なし"><span class="cl">いいえ</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+    </div>
+
+    <div class="cond hidden" data-cond="kubun:健康保険組合の補助を利用">
+      <p class="condhead">健康保険組合の補助をご利用の方</p>
+      <div class="field" id="fld-kenpo">
+        <label class="q" for="kenpo">健康保険組合の名称<span class="req">必須</span></label>
+        <input type="text" id="kenpo" name="kenpo" autocomplete="off">
+        <p class="err">健康保険組合の名称をご入力ください。</p>
+      </div>
+      <div class="field" id="fld-hojoken">
+        <span class="q">補助券・受診券はお手元にありますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="hojoken" value="あり"><span class="cl">ある</span></label>
+          <label class="choice"><input type="radio" name="hojoken" value="なし"><span class="cl">ない</span></label>
+          <label class="choice"><input type="radio" name="hojoken" value="不明"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+    </div>
+
+    <div class="cond hidden" data-cond="kubun:自治体の特定健診・がん検診">
+      <p class="condhead">市や町の健診をご利用の方</p>
+      <div class="field" id="fld-shicho">
+        <label class="q" for="shicho">お住まいの市町名<span class="req">必須</span></label>
+        <p class="hint">例：長与町</p>
+        <input type="text" id="shicho" name="shicho" autocomplete="address-level2">
+        <p class="err">市町名をご入力ください。</p>
+      </div>
+      <div class="field" id="fld-jushinken">
+        <span class="q">受診券はお手元にありますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="jushinken" value="あり"><span class="cl">ある</span></label>
+          <label class="choice"><input type="radio" name="jushinken" value="なし"><span class="cl">ない</span></label>
+          <label class="choice"><input type="radio" name="jushinken" value="不明"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="fs">
+    <h2>2. ご希望のコース</h2>
+    <p class="note">料金は変わることがあります。詳しくは折り返しのお電話でご案内します。</p>
+    <div class="field" id="fld-course">
+      <span class="q">受けたいコース<span class="req">必須</span></span>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="course" value="定期健康診断（Aコース）" data-igi="1"><span class="cl">定期健康診断（Aコース）<span class="cs">35歳・40歳以上の方向け</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="定期健康診断（Bコース）"><span class="cl">定期健康診断（Bコース）</span></label>
+        <label class="choice"><input type="radio" name="course" value="定期健康診断（Cコース）"><span class="cl">定期健康診断（Cコース）</span></label>
+        <label class="choice"><input type="radio" name="course" value="生活習慣病予防検診" data-igi="1"><span class="cl">生活習慣病予防検診</span></label>
+        <label class="choice"><input type="radio" name="course" value="半日人間ドック" data-igi="1"><span class="cl">半日人間ドック<span class="cs">所要時間 約2時間</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="スタンダード人間ドック（Aコース）" data-igi="1"><span class="cl">スタンダード人間ドック（Aコース）<span class="cs">所要時間 約3時間</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="プレミアム人間ドック（Bコース）" data-igi="1"><span class="cl">プレミアム人間ドック（Bコース）<span class="cs">頭部CT検査つき</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="エグゼクティブ人間ドック（Cコース・1泊2日）" data-igi="1"><span class="cl">エグゼクティブ人間ドック（Cコース）<span class="cs">1泊2日／脳ドック・心臓超音波つき</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="脳ドック"><span class="cl">脳ドック</span></label>
+        <label class="choice"><input type="radio" name="course" value="レディースドック" data-igi="1"><span class="cl">レディースドック<span class="cs">人間ドックに婦人科の検査を組み合わせたコース</span></span></label>
+        <label class="choice"><input type="radio" name="course" value="決めていない・相談したい"><span class="cl">決めていない・相談したい<span class="cs">お電話で一緒に決めます</span></span></label>
+      </div>
+      <p class="err">コースをお選びください。</p>
+    </div>
+
+    <div class="cond hidden" id="cond-igi">
+      <p class="condhead">胃の検査について</p>
+      <div class="field" id="fld-igi">
+        <span class="q">どちらをご希望ですか<span class="req">必須</span></span>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="igi" value="胃カメラ"><span class="cl">胃カメラ（内視鏡）</span></label>
+          <label class="choice"><input type="radio" name="igi" value="バリウム"><span class="cl">バリウム（胃部エックス線）</span></label>
+          <label class="choice"><input type="radio" name="igi" value="希望しない"><span class="cl">胃の検査は希望しない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+      <div class="field hidden" id="fld-chinsei">
+        <span class="q">鎮静剤（眠くなるお薬）のご希望<span class="req">必須</span></span>
+        <p class="hint">使用した場合、当日はご自身での車の運転ができません。</p>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="chinsei" value="希望する"><span class="cl">希望する</span></label>
+          <label class="choice"><input type="radio" name="chinsei" value="希望しない"><span class="cl">希望しない</span></label>
+          <label class="choice"><input type="radio" name="chinsei" value="相談したい"><span class="cl">相談したい</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+    </div>
+
+    <div class="field" id="fld-option">
+      <span class="q">追加したい検査があればお選びください<span class="opt">任意</span></span>
+      <p class="hint">いくつでも選べます。追加の費用がかかります。</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" name="option" value="子宮頸がん検査"><span class="cl">子宮頸がん検査</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="乳がん検査（マンモグラフィ）"><span class="cl">乳がん検査（マンモグラフィ）</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="乳房超音波"><span class="cl">乳房超音波</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="腫瘍マーカー"><span class="cl">腫瘍マーカー</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="頭部CT・MRI" id="opt-head"><span class="cl">頭部CT・MRI</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="心臓超音波"><span class="cl">心臓超音波</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="骨密度"><span class="cl">骨密度</span></label>
+        <label class="choice"><input type="checkbox" name="option" value="ピロリ菌検査"><span class="cl">ピロリ菌検査</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="fs">
+    <h2>3. ご希望の日</h2>
+    <p class="note">現在お申し込みを受け付けている日だけを表示しています。第3希望までお選びいただくと、日程が早く決まります。</p>
+
+    <div id="cal-area">
+      <div class="calbox">
+        <div class="calhead">
+          <button type="button" id="cal-prev">前の月</button>
+          <span class="m" id="cal-month"></span>
+          <button type="button" id="cal-next">次の月</button>
+        </div>
+        <div class="calgrid" id="cal-grid"></div>
+        <div class="timepick hidden" id="cal-time">
+          <p id="cal-time-label"></p>
+          <div class="btns" id="cal-time-btns"></div>
+        </div>
+      </div>
+      <p class="callegend">数字が濃く表示されている日が、お申し込みできる日です。日付を押すと、時間帯が選べます。</p>
+    </div>
+
+    <div class="calstop hidden" id="cal-stop">
+      ただいまインターネットでのお申し込みを停止しています。<br>
+      お手数ですが、お電話でお申し込みください。<br>
+      健康管理センター <strong>095-813-5820</strong>（直通）
+    </div>
+
+    <div class="field" id="fld-wish">
+      <span class="q">お選びいただいた希望日<span class="req">必須</span></span>
+      <p class="hint">上から順に、第1希望・第2希望・第3希望として承ります。3つまで選べます。</p>
+      <ol class="wishlist" id="wishlist"></ol>
+      <p class="wishempty" id="wishempty">まだ選ばれていません。上のカレンダーから日付を押してください。</p>
+      <p class="err">ご希望の日を1つ以上お選びください。</p>
+    </div>
+  </section>
+
+  <section class="fs">
+    <h2>4. ご本人の情報</h2>
+
+    <div class="field" id="fld-name">
+      <label class="q" for="name">お名前<span class="req">必須</span></label>
+      <input type="text" id="name" name="name" autocomplete="name">
+      <p class="err">お名前をご入力ください。</p>
+    </div>
+    <div class="field" id="fld-kana">
+      <label class="q" for="kana">フリガナ<span class="req">必須</span></label>
+      <p class="hint">カタカナでご入力ください。</p>
+      <input type="text" id="kana" name="kana">
+      <p class="err">フリガナをカタカナでご入力ください。</p>
+    </div>
+    <div class="field" id="fld-birth">
+      <label class="q" for="birth">生年月日<span class="req">必須</span></label>
+      <input type="date" id="birth" name="birth" autocomplete="bday">
+      <p class="err">生年月日をご入力ください。</p>
+    </div>
+    <div class="field" id="fld-sex">
+      <span class="q">性別<span class="req">必須</span></span>
+      <p class="hint">検査の内容にかかわるため、お伺いしています。</p>
+      <div class="choices inline">
+        <label class="choice"><input type="radio" name="sex" value="男性"><span class="cl">男性</span></label>
+        <label class="choice"><input type="radio" name="sex" value="女性"><span class="cl">女性</span></label>
+      </div>
+      <p class="err">性別をお選びください。</p>
+    </div>
+    <div class="field" id="fld-tel">
+      <label class="q" for="tel">電話番号<span class="req">必須</span></label>
+      <p class="hint">日中に連絡がつく番号をご入力ください。折り返しこちらにお電話します。</p>
+      <input type="tel" id="tel" name="tel" inputmode="tel" autocomplete="tel" placeholder="090-1234-5678">
+      <p class="err">電話番号を数字とハイフンでご入力ください。</p>
+    </div>
+    <div class="field" id="fld-mail">
+      <label class="q" for="mail">メールアドレス<span class="req">必須</span></label>
+      <p class="hint">受付の確認をお送りします。</p>
+      <input type="email" id="mail" name="mail" inputmode="email" autocomplete="email">
+      <p class="err">メールアドレスをご確認ください。</p>
+    </div>
+    <div class="field" id="fld-jikan">
+      <span class="q">電話に出やすい時間帯<span class="req">必須</span></span>
+      <div class="choices inline">
+        <label class="choice"><input type="radio" name="jikan" value="午前"><span class="cl">午前</span></label>
+        <label class="choice"><input type="radio" name="jikan" value="午後"><span class="cl">午後</span></label>
+        <label class="choice"><input type="radio" name="jikan" value="夕方以降"><span class="cl">夕方以降</span></label>
+        <label class="choice"><input type="radio" name="jikan" value="いつでも"><span class="cl">いつでも</span></label>
+      </div>
+      <p class="err">いずれかをお選びください。</p>
+    </div>
+    <div class="field" id="fld-rireki">
+      <span class="q">当院で健診を受けたことがありますか<span class="req">必須</span></span>
+      <div class="choices inline">
+        <label class="choice"><input type="radio" name="rireki" value="初めて"><span class="cl">初めて</span></label>
+        <label class="choice"><input type="radio" name="rireki" value="2回目以降"><span class="cl">2回目以降</span></label>
+      </div>
+      <p class="err">いずれかをお選びください。</p>
+    </div>
+  </section>
+
+  <section class="fs">
+    <h2>5. 安全のための確認</h2>
+    <p class="note">検査を安全に行うための確認です。<strong>あてはまるかどうか</strong>だけお答えください。詳しい内容は、折り返しのお電話でお伺いします。</p>
+
+    <div class="safety">
+      <div class="field hidden" id="fld-ninshin">
+        <span class="q">妊娠中、妊娠の可能性、または授乳中ですか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="ninshin" value="該当あり"><span class="cl">あてはまる</span></label>
+          <label class="choice"><input type="radio" name="ninshin" value="該当なし"><span class="cl">あてはまらない</span></label>
+          <label class="choice"><input type="radio" name="ninshin" value="わからない"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+
+      <div class="field hidden" id="fld-kinzoku">
+        <span class="q">体内に金属（ペースメーカー、ボルト、クリップなど）や刺青がありますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="kinzoku" value="該当あり"><span class="cl">ある</span></label>
+          <label class="choice"><input type="radio" name="kinzoku" value="該当なし"><span class="cl">ない</span></label>
+          <label class="choice"><input type="radio" name="kinzoku" value="わからない"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+
+      <div class="field hidden" id="fld-zoei">
+        <span class="q">造影剤で具合が悪くなったことがありますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="zoei" value="該当あり"><span class="cl">ある</span></label>
+          <label class="choice"><input type="radio" name="zoei" value="該当なし"><span class="cl">ない</span></label>
+          <label class="choice"><input type="radio" name="zoei" value="わからない"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+
+      <div class="field hidden" id="fld-kessen">
+        <span class="q">血をサラサラにするお薬を飲んでいますか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="kessen" value="該当あり"><span class="cl">飲んでいる</span></label>
+          <label class="choice"><input type="radio" name="kessen" value="該当なし"><span class="cl">飲んでいない</span></label>
+          <label class="choice"><input type="radio" name="kessen" value="わからない"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+
+      <div class="field" id="fld-kaijo">
+        <span class="q">当日、車いすや付き添いの介助が必要ですか<span class="req">必須</span></span>
+        <div class="choices inline">
+          <label class="choice"><input type="radio" name="kaijo" value="該当あり"><span class="cl">必要</span></label>
+          <label class="choice"><input type="radio" name="kaijo" value="該当なし"><span class="cl">不要</span></label>
+          <label class="choice"><input type="radio" name="kaijo" value="わからない"><span class="cl">わからない</span></label>
+        </div>
+        <p class="err">いずれかをお選びください。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="fs">
+    <h2>6. その他</h2>
+    <div class="field" id="fld-biko">
+      <label class="q" for="biko">ご質問・ご要望<span class="opt">任意</span></label>
+      <p class="hint">150文字までご記入いただけます。病名やお薬の名前は書かないでください。お電話でお伺いします。</p>
+      <textarea id="biko" name="biko" maxlength="150"></textarea>
+      <p class="err">150文字以内でご入力ください。</p>
+    </div>
+    <div class="field" id="fld-doui">
+      <span class="q">個人情報の取り扱いについて<span class="req">必須</span></span>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" name="doui" value="同意"><span class="cl">お預かりした情報を、健診の予約と当日のご案内のためだけに使うことに同意します<span class="cs"><a href="#">個人情報の取り扱いについて</a></span></span></label>
+      </div>
+      <p class="err">同意にチェックをお願いします。</p>
+    </div>
+  </section>
+
+  <!-- bot対策：ハニーポット（人には見えない。入力があれば送信を破棄する） -->
+  <div class="hp" aria-hidden="true"><label>ここは入力しないでください<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <input type="hidden" name="ts" id="ts">
+
+  <div class="errbox" id="errbox"></div>
+
+  <div class="actions">
+    <button type="submit" class="primary">入力内容を確認する</button>
+  </div>
+</form>
+</div>
+
+<!-- ============ 画面2：確認 ============ -->
+<div id="screen-confirm" class="hidden">
+  <section class="fs">
+    <h2>入力内容の確認</h2>
+    <p class="note">この内容でよろしければ、いちばん下のボタンを押してください。まだ送信されていません。</p>
+    <table class="summary" id="sumtable"></table>
+  </section>
+  <div class="actions">
+    <button type="button" class="primary" id="btn-send">この内容で予約を依頼する</button>
+    <button type="button" class="ghost" id="btn-back">入力に戻って修正する</button>
+  </div>
+</div>
+
+<!-- ============ 画面3：完了 ============ -->
+<div id="screen-done" class="hidden">
+  <div class="done">
+    <section class="fs" style="margin-top:0;">
+      <h2>予約の依頼を受け付けました</h2>
+    </section>
+    <p style="margin-top:20px;text-align:left;">
+      <strong>これは受付の確認であり、予約はまだ確定していません。</strong><br>
+      2営業日以内（日曜・祝日を除く）に、担当者からお電話でご連絡し、日程を確定します。<br>
+      ご入力のメールアドレスに、受付の控えをお送りしました。
+    </p>
+    <p class="num">受付番号<strong id="uketsuke-no">—</strong></p>
+    <p style="text-align:left;margin-top:24px;font-size:15px;color:var(--muted);">
+      3営業日を過ぎても連絡がない場合は、お手数ですが健康管理センター（095-813-5820）までお電話ください。
+    </p>
+  </div>
+</div>
+
+</main>
+
+<!-- ============ 業者向け：メール本文プレビュー ============ -->
+<div class="devpanel" id="devpanel">
+  <h3>【業者向け】このフォームから送信される2通のメール</h3>
+  <div class="tabs">
+    <button type="button" id="tab-a" aria-selected="true">院内受付宛</button>
+    <button type="button" id="tab-b" aria-selected="false">申込者宛（自動返信）</button>
+  </div>
+  <pre id="mailview">入力内容を確認すると、ここに実データでの本文が表示されます。</pre>
+  <p class="cap">院内受付宛の <code>#DATA_BEGIN</code> 〜 <code>#DATA_END</code> は、台帳へ自動転記するためのブロックです。キー名・順序・記法を1文字も変更しないでください。改行やスペースの追加も不可です。</p>
+</div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var form = document.getElementById('f');
+  document.getElementById('ts').value = String(Date.now());
+
+  /* ---------- 分岐の制御 ---------- */
+  var IGI_COURSES = null; // data-igi 属性で判定
+
+  function val(name){
+    var el = form.querySelector('[name="'+name+'"]:checked');
+    return el ? el.value : '';
+  }
+  function checkedList(name){
+    return Array.prototype.map.call(form.querySelectorAll('[name="'+name+'"]:checked'), function(e){return e.value;});
+  }
+  function show(el, on){
+    if(!el) return;
+    el.classList.toggle('hidden', !on);
+    if(!on){
+      Array.prototype.forEach.call(el.querySelectorAll('input,select,textarea'), function(i){
+        if(i.type==='radio'||i.type==='checkbox'){ i.checked = false; } else { i.value=''; }
+      });
+      el.classList.remove('invalid');
+      Array.prototype.forEach.call(el.querySelectorAll('.invalid'), function(f){ f.classList.remove('invalid'); });
+    }
+  }
+
+  function refresh(){
+    var kubun = val('kubun');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-cond]'), function(el){
+      show(el, el.getAttribute('data-cond') === 'kubun:'+kubun);
+    });
+
+    var courseEl = form.querySelector('[name="course"]:checked');
+    var hasIgi = !!(courseEl && courseEl.getAttribute('data-igi'));
+    show(document.getElementById('cond-igi'), hasIgi);
+    show(document.getElementById('fld-chinsei'), hasIgi && val('igi')==='胃カメラ');
+
+    var head = document.getElementById('opt-head').checked;
+    show(document.getElementById('fld-kinzoku'), head);
+    show(document.getElementById('fld-zoei'), head);
+    show(document.getElementById('fld-kessen'), val('igi')==='胃カメラ');
+    show(document.getElementById('fld-ninshin'), val('sex')==='女性');
+  }
+  form.addEventListener('change', refresh);
+  refresh();
+
+  /* ================= 受付可能日カレンダー =================
+     本番では、GASが公開するJSONを起動時に取得します。
+       例：{"generated_at":"2026-09-04 06:00:00",
+            "days":{"2026-09-08":["午前","午後"],"2026-09-09":["午前"]}}
+     取得に失敗した場合、または受付可能日が0件の場合は、
+     カレンダーを隠して電話案内を表示します（白紙にしない）。
+     ここではモックのため、当日を基準にサンプルデータを生成しています。
+  ========================================================== */
+  var AVAIL = (function makeSample(){
+    var days = {}, base = new Date(); base.setHours(0,0,0,0);
+    for(var i=3;i<70;i++){
+      var d = new Date(base); d.setDate(d.getDate()+i);
+      if(d.getDay()===0) continue;              // 日曜は実施しない
+      if(i % 5 === 1) continue;                 // すでに埋まっている日を再現
+      var slots = [];
+      if(i % 3 !== 0) slots.push('午前');
+      if(i % 4 !== 0) slots.push('午後');
+      if(!slots.length) continue;
+      days[iso(d)] = slots;
+    }
+    return { generated_at: fmtNow(), days: days };
+  })();
+
+  var WISH = [];           // [{date:'2026-09-08', time:'午前'}, ...] 先頭が第1希望
+  var viewY, viewM, activeDate = null;
+
+  function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function slotsOf(dstr){ return AVAIL.days[dstr] || null; }
+  function inWish(dstr, t){
+    for(var i=0;i<WISH.length;i++) if(WISH[i].date===dstr && WISH[i].time===t) return i;
+    return -1;
+  }
+  function dayPicked(dstr){
+    for(var i=0;i<WISH.length;i++) if(WISH[i].date===dstr) return true;
+    return false;
+  }
+
+  var GRID = document.getElementById('cal-grid');
+  var MONTHLBL = document.getElementById('cal-month');
+  var TIMEBOX = document.getElementById('cal-time');
+  var TIMELBL = document.getElementById('cal-time-label');
+  var TIMEBTN = document.getElementById('cal-time-btns');
+  var DOW = ['日','月','火','水','木','金','土'];
+
+  function monthHasAvail(y,m){
+    for(var k in AVAIL.days){
+      var p = k.split('-');
+      if(Number(p[0])===y && Number(p[1])===m+1) return true;
+    }
+    return false;
+  }
+
+  function drawCalendar(){
+    GRID.innerHTML = '';
+    MONTHLBL.textContent = viewY + '年' + (viewM+1) + '月';
+    DOW.forEach(function(w,i){
+      var e = document.createElement('div');
+      e.className = 'dow' + (i===0?' sun':'') + (i===6?' sat':'');
+      e.textContent = w; GRID.appendChild(e);
+    });
+    var first = new Date(viewY, viewM, 1);
+    var last = new Date(viewY, viewM+1, 0).getDate();
+    for(var b=0;b<first.getDay();b++){
+      var pad0 = document.createElement('div'); pad0.className='cell empty'; GRID.appendChild(pad0);
+    }
+    for(var day=1; day<=last; day++){
+      var dstr = viewY+'-'+pad(viewM+1)+'-'+pad(day);
+      var slots = slotsOf(dstr);
+      var cell = document.createElement(slots ? 'button' : 'div');
+      cell.className = 'cell' + (slots ? ' ok' : '') + (dayPicked(dstr) ? ' picked' : '') + (activeDate===dstr ? ' active' : '');
+      if(slots){
+        cell.type = 'button';
+        cell.setAttribute('aria-label', (viewM+1)+'月'+day+'日 申し込み可能');
+        cell.dataset.date = dstr;
+      }
+      var n = document.createElement('span'); n.textContent = day; cell.appendChild(n);
+      if(slots){ var mk = document.createElement('span'); mk.className='mark'; mk.textContent='空き'; cell.appendChild(mk); }
+      GRID.appendChild(cell);
+    }
+    // 前後の月に候補があるときだけボタンを有効にする
+    var pm = new Date(viewY, viewM-1, 1), nm = new Date(viewY, viewM+1, 1);
+    document.getElementById('cal-prev').disabled = !monthHasAvail(pm.getFullYear(), pm.getMonth());
+    document.getElementById('cal-next').disabled = !monthHasAvail(nm.getFullYear(), nm.getMonth());
+  }
+
+  function openTime(dstr){
+    activeDate = dstr;
+    var slots = slotsOf(dstr) || [];
+    var p = dstr.split('-');
+    TIMELBL.textContent = Number(p[1])+'月'+Number(p[2])+'日（'+DOW[new Date(dstr+'T00:00:00').getDay()]+'）の時間帯をお選びください';
+    TIMEBTN.innerHTML = '';
+    slots.forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button';
+      var idx = inWish(dstr, t);
+      b.className = idx >= 0 ? 'ghost' : 'primary';
+      b.textContent = idx >= 0 ? t + 'を取り消す' : t;
+      b.addEventListener('click', function(){
+        if(idx >= 0){ WISH.splice(idx,1); }
+        else if(WISH.length >= 3){ alert('ご希望は3つまでお選びいただけます。取り消してからお選びください。'); return; }
+        else { WISH.push({date:dstr, time:t}); }
+        renderWish(); drawCalendar(); openTime(dstr);
+      });
+      TIMEBTN.appendChild(b);
+    });
+    TIMEBOX.classList.remove('hidden');
+    drawCalendar();
+  }
+
+  function renderWish(){
+    var ul = document.getElementById('wishlist');
+    ul.innerHTML = '';
+    document.getElementById('wishempty').classList.toggle('hidden', WISH.length > 0);
+    WISH.forEach(function(w, i){
+      var li = document.createElement('li');
+      var r = document.createElement('span'); r.className='rank'; r.textContent='第'+(i+1)+'希望';
+      var d = document.createElement('span'); d.className='d'; d.textContent = jpDate(w.date)+'（'+DOW[new Date(w.date+'T00:00:00').getDay()]+'）　'+w.time;
+      var b = document.createElement('button'); b.type='button'; b.textContent='取り消す';
+      b.addEventListener('click', function(){ WISH.splice(i,1); renderWish(); drawCalendar(); if(activeDate) openTime(activeDate); });
+      li.appendChild(r); li.appendChild(d); li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  GRID.addEventListener('click', function(e){
+    var c = e.target.closest('.cell.ok');
+    if(c && c.dataset.date) openTime(c.dataset.date);
+  });
+  document.getElementById('cal-prev').addEventListener('click', function(){
+    viewM--; if(viewM<0){ viewM=11; viewY--; } TIMEBOX.classList.add('hidden'); activeDate=null; drawCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', function(){
+    viewM++; if(viewM>11){ viewM=0; viewY++; } TIMEBOX.classList.add('hidden'); activeDate=null; drawCalendar();
+  });
+
+  (function initCalendar(){
+    var keys = Object.keys(AVAIL.days).sort();
+    if(!keys.length){
+      document.getElementById('cal-area').classList.add('hidden');
+      document.getElementById('fld-wish').classList.add('hidden');
+      document.getElementById('cal-stop').classList.remove('hidden');
+      return;
+    }
+    var f = new Date(keys[0]+'T00:00:00');
+    viewY = f.getFullYear(); viewM = f.getMonth();
+    drawCalendar(); renderWish();
+  })();
+
+  /* ---------- 入力チェック ---------- */
+  function visible(el){ return el && !el.closest('.hidden') && !el.classList.contains('hidden'); }
+  function mark(id, bad){
+    var f = document.getElementById(id);
+    if(!f) return !bad;
+    f.classList.toggle('invalid', !!bad);
+    return !bad;
+  }
+  function isBlank(name){ return val(name)===''; }
+  function txt(id){ var e=document.getElementById(id); return e ? e.value.trim() : ''; }
+
+  function validate(){
+    var ok = true, first = null;
+    function chk(id, good){
+      if(!mark(id, !good)){ ok = false; if(!first) first = document.getElementById(id); }
+    }
+    chk('fld-kubun', !isBlank('kubun'));
+    if(visible(document.getElementById('fld-shiharai'))) chk('fld-shiharai', !isBlank('shiharai'));
+    if(visible(document.getElementById('fld-hokensho'))) chk('fld-hokensho', txt('hokensho')!=='');
+    if(visible(document.getElementById('fld-fuyou'))) chk('fld-fuyou', !isBlank('fuyou'));
+    if(visible(document.getElementById('fld-kenpo'))) chk('fld-kenpo', txt('kenpo')!=='');
+    if(visible(document.getElementById('fld-hojoken'))) chk('fld-hojoken', !isBlank('hojoken'));
+    if(visible(document.getElementById('fld-shicho'))) chk('fld-shicho', txt('shicho')!=='');
+    if(visible(document.getElementById('fld-jushinken'))) chk('fld-jushinken', !isBlank('jushinken'));
+
+    chk('fld-course', !isBlank('course'));
+    if(visible(document.getElementById('fld-igi'))) chk('fld-igi', !isBlank('igi'));
+    if(visible(document.getElementById('fld-chinsei'))) chk('fld-chinsei', !isBlank('chinsei'));
+
+    chk('fld-wish', WISH.length >= 1);
+
+    chk('fld-name', txt('name')!=='');
+    chk('fld-kana', /^[ァ-ヶー\u3000\s]+$/.test(txt('kana')));
+    chk('fld-birth', txt('birth')!=='' && new Date(txt('birth')) < new Date());
+    chk('fld-sex', !isBlank('sex'));
+    chk('fld-tel', /^[0-9\-]{10,14}$/.test(txt('tel')));
+    chk('fld-mail', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(txt('mail')));
+    chk('fld-jikan', !isBlank('jikan'));
+    chk('fld-rireki', !isBlank('rireki'));
+
+    ['ninshin','kinzoku','zoei','kessen','kaijo'].forEach(function(n){
+      var f = document.getElementById('fld-'+n);
+      if(visible(f)) chk('fld-'+n, !isBlank(n));
+    });
+
+    chk('fld-biko', txt('biko').length <= 150);
+    chk('fld-doui', checkedList('doui').length === 1);
+
+    var box = document.getElementById('errbox');
+    if(!ok){
+      box.textContent = '入力に不足があります。赤く表示されている項目をご確認ください。';
+      box.classList.add('on');
+      if(first) first.scrollIntoView({block:'center'});
+    } else {
+      box.classList.remove('on');
+    }
+    return ok;
+  }
+
+  /* ---------- データの組み立て ---------- */
+  var COURSE_JP = {};
+  function collect(){
+    var d = {
+      uketsuke_no: makeNo(),
+      uketsuke_at: fmtNow(),
+      kubun: val('kubun'),
+      course: val('course'),
+      name: txt('name'), kana: txt('kana'), birth: txt('birth'), sex: val('sex'),
+      tel: txt('tel'), mail: txt('mail'), jikan: val('jikan'), rireki: val('rireki'),
+      d1: WISH[0] ? WISH[0].date : '', t1: WISH[0] ? WISH[0].time : '',
+      d2: WISH[1] ? WISH[1].date : '', t2: WISH[1] ? WISH[1].time : '',
+      d3: WISH[2] ? WISH[2].date : '', t3: WISH[2] ? WISH[2].time : '',
+      cal_generated_at: AVAIL.generated_at,
+      option: checkedList('option'),
+      kaijo: val('kaijo'),
+      biko: txt('biko')
+    };
+    // 区分別
+    if(val('kubun')==='個人（全額自己負担）') d.shiharai = val('shiharai');
+    if(val('kubun')==='協会けんぽ 生活習慣病予防検診'){ d.hokensho = txt('hokensho'); d.fuyou = val('fuyou'); }
+    if(val('kubun')==='健康保険組合の補助を利用'){ d.kenpo = txt('kenpo'); d.hojoken = val('hojoken'); }
+    if(val('kubun')==='自治体の特定健診・がん検診'){ d.shicho = txt('shicho'); d.jushinken = val('jushinken'); }
+    // 条件付き
+    if(val('igi')) d.igi = val('igi');
+    if(val('chinsei')) d.chinsei = val('chinsei');
+    if(val('ninshin')) d.ninshin = val('ninshin');
+    if(val('kinzoku')) d.kinzoku = val('kinzoku');
+    if(val('zoei')) d.zoei = val('zoei');
+    if(val('kessen')) d.kessen = val('kessen');
+    return d;
+  }
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function fmtNow(){
+    var n = new Date();
+    return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())+' '+pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  }
+  function makeNo(){
+    var n = new Date();
+    // モックのため乱数。本番はサーバ側で当日連番（0001〜）を採番すること
+    return ''+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'-'+String(Math.floor(Math.random()*9000+1000));
+  }
+  function jpDate(v){
+    if(!v) return '';
+    var p = v.split('-');
+    return p[0]+'年'+Number(p[1])+'月'+Number(p[2])+'日';
+  }
+
+  /* ---------- 確認画面 ---------- */
+  var LABEL = {
+    kubun:'お申し込みの区分', shiharai:'お支払い方法', hokensho:'保険証の記号・番号', fuyou:'ご家族の同時受診',
+    kenpo:'健康保険組合名', hojoken:'補助券・受診券', shicho:'市町名', jushinken:'受診券',
+    course:'ご希望のコース', igi:'胃の検査', chinsei:'鎮静剤',
+    option:'追加の検査', d1:'第1希望', d2:'第2希望', d3:'第3希望',
+    name:'お名前', kana:'フリガナ', birth:'生年月日', sex:'性別', tel:'電話番号', mail:'メールアドレス',
+    jikan:'電話に出やすい時間帯', rireki:'当院での受診歴',
+    ninshin:'妊娠・授乳', kinzoku:'体内の金属・刺青', zoei:'造影剤', kessen:'血をサラサラにする薬', kaijo:'車いす・介助',
+    biko:'ご質問・ご要望'
+  };
+  var ORDER = ['kubun','shiharai','hokensho','fuyou','kenpo','hojoken','shicho','jushinken',
+               'course','igi','chinsei','option','d1','d2','d3',
+               'name','kana','birth','sex','tel','mail','jikan','rireki',
+               'ninshin','kinzoku','zoei','kessen','kaijo','biko'];
+  var FLAGGED = ['ninshin','kinzoku','zoei','kessen','kaijo'];
+
+  function displayValue(k, d){
+    if(k==='option') return d.option.length ? d.option.join('、') : 'なし';
+    if(k==='d1') return d.d1 ? jpDate(d.d1)+'　'+d.t1 : '';
+    if(k==='d2') return d.d2 ? jpDate(d.d2)+'　'+d.t2 : '';
+    if(k==='d3') return d.d3 ? jpDate(d.d3)+'　'+d.t3 : '';
+    if(k==='birth') return jpDate(d.birth);
+    if(k==='biko') return d.biko || 'なし';
+    return d[k];
+  }
+
+  function renderConfirm(d){
+    var t = document.getElementById('sumtable');
+    t.innerHTML = '';
+    ORDER.forEach(function(k){
+      if(!(k in d) && k!=='option') return;
+      var v = displayValue(k, d);
+      if(v === '' || v === undefined) return;
+      var tr = document.createElement('tr');
+      if(FLAGGED.indexOf(k)>=0 && (v==='該当あり' || v==='わからない')) tr.className='flag';
+      var th = document.createElement('th'); th.textContent = LABEL[k] || k;
+      var td = document.createElement('td'); td.textContent = v;
+      tr.appendChild(th); tr.appendChild(td); t.appendChild(tr);
+    });
+  }
+
+  /* ---------- メール本文の生成 ---------- */
+  function mailToStaff(d){
+    var L = [];
+    L.push('健診・人間ドックの予約依頼を受け付けました。');
+    L.push('台帳への転記は自動で行われます。折り返しのお電話をお願いします。');
+    L.push('');
+    L.push('受付番号：' + d.uketsuke_no);
+    L.push('受付日時：' + d.uketsuke_at);
+    L.push('');
+    L.push('■ 連絡先');
+    L.push('　お名前　　：' + d.name + '（' + d.kana + '）');
+    L.push('　生年月日　：' + jpDate(d.birth) + '　性別：' + d.sex);
+    L.push('　電話番号　：' + d.tel + '　（' + d.jikan + 'が繋がりやすい）');
+    L.push('　メール　　：' + d.mail);
+    L.push('　受診歴　　：' + d.rireki);
+    L.push('');
+    L.push('■ ご希望');
+    L.push('　区分　　　：' + d.kubun);
+    if(d.shiharai)  L.push('　支払方法　：' + d.shiharai);
+    if(d.hokensho)  L.push('　保険証　　：' + d.hokensho + '　家族同時受診：' + d.fuyou);
+    if(d.kenpo)     L.push('　健保組合　：' + d.kenpo + '　補助券：' + d.hojoken);
+    if(d.shicho)    L.push('　市町　　　：' + d.shicho + '　受診券：' + d.jushinken);
+    L.push('　コース　　：' + d.course);
+    if(d.igi)     L.push('　胃の検査　：' + d.igi + (d.chinsei ? '（鎮静剤：' + d.chinsei + '）' : ''));
+    L.push('　追加検査　：' + (d.option.length ? d.option.join('、') : 'なし'));
+    L.push('');
+    L.push('■ 希望日');
+    L.push('　第1希望　：' + jpDate(d.d1) + '　' + d.t1);
+    if(d.d2) L.push('　第2希望　：' + jpDate(d.d2) + '　' + d.t2);
+    if(d.d3) L.push('　第3希望　：' + jpDate(d.d3) + '　' + d.t3);
+    L.push('');
+    L.push('■ 安全確認（電話で必ず確認してください）');
+    FLAGGED.forEach(function(k){
+      if(d[k]) L.push('　' + (LABEL[k]+'　　　　').slice(0,8) + '：' + d[k] + ((d[k]==='該当あり'||d[k]==='わからない') ? '　★要確認' : ''));
+    });
+    L.push('');
+    L.push('■ ご質問・ご要望');
+    L.push('　' + (d.biko || 'なし'));
+    L.push('');
+    L.push('========== 以下はシステム処理用（編集しないでください） ==========');
+    L.push('#DATA_BEGIN');
+    L.push(JSON.stringify(d));
+    L.push('#DATA_END');
+    var subj = '【健診予約依頼】' + d.uketsuke_no + ' ' + d.name + ' / ' + d.course;
+    return '差出人： 健診予約フォーム <kenshin-form@nk-toku.jp>\n宛先　： 健診受付 <kenshin-uketsuke@nk-toku.jp>\n件名　： ' + subj + '\n\n' + L.join('\n');
+  }
+
+  function mailToUser(d){
+    var L = [];
+    L.push(d.name + ' 様');
+    L.push('');
+    L.push('健診・人間ドックの予約依頼を受け付けました。');
+    L.push('このメールは受付の確認です。予約はまだ確定していません。');
+    L.push('2営業日以内（日曜・祝日を除く）に、担当者からお電話でご連絡し、日程を確定します。');
+    L.push('');
+    L.push('　受付番号　：' + d.uketsuke_no);
+    L.push('　受付日時　：' + d.uketsuke_at);
+    L.push('　コース　　：' + d.course);
+    L.push('　第1希望　：' + jpDate(d.d1) + '　' + d.t1);
+    if(d.d2) L.push('　第2希望　：' + jpDate(d.d2) + '　' + d.t2);
+    if(d.d3) L.push('　第3希望　：' + jpDate(d.d3) + '　' + d.t3);
+    L.push('');
+    L.push('3営業日を過ぎても連絡がない場合は、お手数ですが下記までお電話ください。');
+    L.push('');
+    L.push('――――――――――――――――――');
+    L.push('長崎北徳洲会病院　健康管理センター');
+    L.push('電話 095-813-5820（直通）／FAX 095-813-5821');
+    L.push('電話受付 9:00〜16:30（月〜土）　日曜・祝日・年末年始休み');
+    L.push('〒851-2131　長崎県西彼杵郡長与町北陽台1丁目5番1');
+    L.push('――――――――――――――――――');
+    L.push('※このメールは送信専用です。返信いただいてもお答えできません。');
+    return '差出人： 長崎北徳洲会病院 健康管理センター <kenshin-form@nk-toku.jp>\n宛先　： ' + d.mail + '\n件名　： 【長崎北徳洲会病院】健診の予約依頼を受け付けました（' + d.uketsuke_no + '）\n\n' + L.join('\n');
+  }
+
+  /* ---------- 画面遷移 ---------- */
+  var current = null;
+  var A = document.getElementById('tab-a'), B = document.getElementById('tab-b'), MV = document.getElementById('mailview');
+  function paintMail(which){
+    if(!current) return;
+    A.setAttribute('aria-selected', which==='a');
+    B.setAttribute('aria-selected', which==='b');
+    MV.textContent = which==='a' ? mailToStaff(current) : mailToUser(current);
+  }
+  A.addEventListener('click', function(){ paintMail('a'); });
+  B.addEventListener('click', function(){ paintMail('b'); });
+
+  function goto(id){
+    ['screen-form','screen-confirm','screen-done'].forEach(function(s){
+      document.getElementById(s).classList.toggle('hidden', s!==id);
+    });
+    window.scrollTo(0,0);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!validate()) return;
+    current = collect();
+    renderConfirm(current);
+    paintMail('a');
+    goto('screen-confirm');
+  });
+
+  document.getElementById('btn-back').addEventListener('click', function(){ goto('screen-form'); });
+  document.getElementById('btn-send').addEventListener('click', function(){
+    document.getElementById('uketsuke-no').textContent = current.uketsuke_no;
+    goto('screen-done');
+  });
+})();
+</script>
+</body>
+</html>
