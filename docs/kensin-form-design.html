@@ -381,15 +381,16 @@
           <tr><td>台帳への書き込み</td><td>メール本文をパース（壊れやすい）</td><td><strong>スプレッドシートへ直接書く。パース不要</strong></td></tr>
           <tr><td>URL</td><td><code>www.nk-toku.jp/…</code>（病院ドメイン）</td><td><code>script.google.com/…</code>（病院ドメインにできない）</td></tr>
           <tr><td>費用</td><td>初期・改修のたびに発生</td><td>ほぼゼロ</td></tr>
-          <tr><td>前提</td><td>なし</td><td>Google クラウド利用の院内承認が必要</td></tr>
+          <tr><td>前提</td><td>なし</td><td>Google クラウド利用の院内承認が必要 → <strong style="color:var(--ok)">2026-09-16 承認取得済み</strong></td></tr>
           <tr><td></td><td style="color:var(--muted)">保留（切り戻し先）</td><td style="color:var(--ok);font-weight:700">採用</td></tr>
         </tbody>
       </table>
     </div>
     <p>案 D の弱点は URL が病院ドメインにならないこと 1 点です。リンク元のページで「病院が用意した申込フォームです」と明示し、フォーム側も病院サイトと同系統のデザインにして補います。</p>
     <div class="note caution">
-      <span class="note-label">切り戻しの条件</span>
-      <p><strong>Google クラウド利用が院内規程で認められない場合は、案 B へ切り替えます。</strong>その場合に必要な業者向け仕様は <code>docs/02_メール仕様.md</code> がそのまま使えるよう残してあります。この判断が全体の最上流です（未決 #1）。</p>
+      <span class="note-label">最上流の判断 &middot; 決着</span>
+      <p><strong>2026-09-16、Google クラウド利用の院内承認を取得しました。案 D で確定です。</strong>これまで全体の最上流にあった「認められなければ案 B へ全面切り替え」という条件は外れ、構成がひっくり返るリスクはなくなりました。</p>
+      <p>ただし業者向け仕様（<code>docs/02_メール仕様.md</code> と <code>vendor/</code>）は<strong>削除せず残します</strong>。将来サイト内へフォームを移す判断をしたとき、そのまま発注仕様として使えるためです。</p>
     </div>
   </section>
 
@@ -665,13 +666,13 @@
 
   <section class="doc prose" id="undecided">
     <h2><span class="sec">12</span>未決事項</h2>
-    <p>要件定義書の 11 件と <code>CLAUDE.md</code> の 5 件を突き合わせ、重複を畳んだ一覧です。仮置きの値が入っているので、違うものだけ直してください。</p>
+    <p>要件定義書の 11 件と <code>CLAUDE.md</code> の 5 件を突き合わせ、重複を畳んだ一覧です。仮置きの値が入っているので、違うものだけ直してください。<strong>#1 は 2026-09-16 に決着しました</strong>（下の表で網掛け）。残り 11 件のうち、実装着手を止めているのは #2 と #3 です。</p>
   </section>
   <div class="scroller">
     <table class="t-wide">
       <thead><tr><th class="num">#</th><th>項目</th><th>現在の仮置き</th><th>決める人</th><th>時期</th></tr></thead>
       <tbody>
-        <tr><td class="num">1</td><td><strong>クラウドへの受診希望者情報の保管可否</strong></td><td>（仮）可</td><td>個人情報保護担当・本部</td><td style="color:var(--danger);font-weight:700">最優先。不可なら案 B へ</td></tr>
+        <tr style="opacity:.62"><td class="num">1</td><td>クラウドへの受診希望者情報の保管可否</td><td><strong style="color:var(--ok)">決定：可</strong></td><td>個人情報保護担当・本部</td><td style="color:var(--ok);font-weight:700">2026-09-16 承認取得。決定済み</td></tr>
         <tr><td class="num">2</td><td>Google Workspace（有償）を使えるか</td><td>（仮）使う</td><td>事務長・情シス</td><td>フェーズ 0</td></tr>
         <tr><td class="num">3</td><td>正式なコース一覧・料金（呼吸器ドック含む）</td><td>（仮）外部予約サイト掲載の内容</td><td>健診部門</td><td>フェーズ 1</td></tr>
         <tr><td class="num">4</td><td>安全確認を 3 択に留める方針</td><td>（仮）3 択とする</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
