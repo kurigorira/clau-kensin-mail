@@ -1,0 +1,1654 @@
+<title>健診予約依頼フォーム設計案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f7f8f7;
+    --surface: #ffffff;
+    --surface-sunk: #eff2f1;
+    --ink: #13201f;
+    --ink-soft: #33443f;
+    --muted: #5c6b6a;
+    --rule: #dde3e1;
+    --rule-strong: #c2cdca;
+    --accent: #0f6e63;
+    --accent-ink: #0a4c44;
+    --accent-weak: #dcede9;
+    --danger: #b3261e;
+    --danger-weak: #fae4e2;
+    --warn: #a85a12;
+    --warn-weak: #fbeddc;
+    --ok: #2e6b3e;
+    --ok-weak: #dfeee2;
+    --hold: #5a5470;
+    --hold-weak: #e8e5ef;
+    --btn-fg: #ffffff;
+    --shadow: 0 1px 2px rgba(19,32,31,.06), 0 8px 24px -16px rgba(19,32,31,.3);
+    --mincho: "Zen Old Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    --gothic: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --fs: 15px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101615; --surface: #18201f; --surface-sunk: #131a19;
+      --ink: #e8edeb; --ink-soft: #c4d0cd; --muted: #94a3a0;
+      --rule: #2a3432; --rule-strong: #3d4c49;
+      --accent: #4fbfae; --accent-ink: #7fd5c7; --accent-weak: #16322e;
+      --danger: #f08a80; --danger-weak: #3a1d1a;
+      --warn: #e0a464; --warn-weak: #362513;
+      --ok: #7ec48e; --ok-weak: #16301c;
+      --hold: #b4abd0; --hold-weak: #262338;
+      --btn-fg: #101615;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #101615; --surface: #18201f; --surface-sunk: #131a19;
+    --ink: #e8edeb; --ink-soft: #c4d0cd; --muted: #94a3a0;
+    --rule: #2a3432; --rule-strong: #3d4c49;
+    --accent: #4fbfae; --accent-ink: #7fd5c7; --accent-weak: #16322e;
+    --danger: #f08a80; --danger-weak: #3a1d1a;
+    --warn: #e0a464; --warn-weak: #362513;
+    --ok: #7ec48e; --ok-weak: #16301c;
+    --hold: #b4abd0; --hold-weak: #262338;
+    --btn-fg: #101615;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--gothic); font-size: var(--fs); line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .masthead {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule);
+  }
+  .masthead-inner {
+    max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 10px 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .brand h1 { font-family: var(--mincho); font-size: 17px; font-weight: 700; margin: 0; letter-spacing: .02em; }
+  .brand .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); }
+
+  .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto; appearance: none; border: 0; border-bottom: 2px solid transparent;
+    background: none; color: var(--muted); font-family: var(--gothic); font-size: 13px;
+    font-weight: 500; padding: 8px 12px; cursor: pointer; white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--accent-ink); border-bottom-color: var(--accent); }
+  .tab .n { font-family: var(--mono); font-size: 11px; opacity: .65; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 80px; }
+  .prose { max-width: 68ch; }
+
+  section.doc { padding-block: 26px; border-top: 1px solid var(--rule); }
+  section.doc:first-of-type { border-top: 0; }
+
+  h2 {
+    font-family: var(--mincho); font-size: 22px; font-weight: 700; line-height: 1.5;
+    margin: 0 0 14px; text-wrap: balance; display: flex; gap: 12px; align-items: baseline;
+  }
+  h2 .sec { font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--accent); flex: 0 0 auto; }
+  h3 { font-family: var(--gothic); font-size: 14px; font-weight: 700; letter-spacing: .04em; margin: 26px 0 10px; }
+  p { margin: 0 0 14px; }
+  .prose > p:last-child { margin-bottom: 0; }
+  .lead { font-family: var(--mincho); font-size: 17px; line-height: 1.9; color: var(--ink-soft); }
+  ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--muted); }
+  em { font-style: normal; background: var(--accent-weak); padding: 0 .2em; border-radius: 2px; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--surface-sunk); padding: .1em .35em; border-radius: 3px; }
+  a { color: var(--accent-ink); }
+
+  .note { border-left: 3px solid var(--rule-strong); padding: 12px 0 12px 16px; margin: 18px 0; color: var(--ink-soft); font-size: 14px; }
+  .note.caution { border-left-color: var(--warn); }
+  .note.key { border-left-color: var(--accent); }
+  .note.alarm { border-left-color: var(--danger); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .note-label { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); margin-bottom: 4px; }
+
+  .scroller { overflow-x: auto; margin: 16px 0; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  th { font-weight: 700; font-size: 11.5px; letter-spacing: .06em; color: var(--muted); white-space: nowrap; background: var(--surface-sunk); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .t-narrow { min-width: 620px; }
+  .t-wide { min-width: 820px; }
+
+  .flow { margin: 18px 0; }
+  .flow-step { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--rule); align-items: start; }
+  .flow-step:last-child { border-bottom: 0; }
+  .actor { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; padding: 3px 7px; border-radius: 3px; text-align: center; }
+  .actor.applicant { background: var(--surface-sunk); color: var(--ink-soft); border: 1px solid var(--rule-strong); }
+  .actor.system { background: var(--accent-weak); color: var(--accent-ink); }
+  .actor.staff { background: var(--warn-weak); color: var(--warn); }
+  .actor.vendor { background: var(--hold-weak); color: var(--hold); }
+  .flow-body strong { display: block; margin-bottom: 2px; }
+  .flow-body span { font-size: 13.5px; color: var(--muted); }
+
+  .mail { border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); margin: 16px 0; overflow: hidden; }
+  .mail-head { background: var(--surface-sunk); padding: 10px 14px; border-bottom: 1px solid var(--rule); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .mail-head b { color: var(--ink); font-weight: 700; }
+  .mail pre { margin: 0; padding: 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.9; white-space: pre-wrap; word-break: break-word; color: var(--ink-soft); }
+  .mail pre mark { background: var(--warn-weak); color: var(--warn); padding: 0 2px; }
+
+  .finding { border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); padding: 14px 16px; margin-bottom: 10px; }
+  .finding.hot { border-color: var(--danger); }
+  .finding h4 { margin: 0 0 6px; font-size: 14.5px; font-weight: 700; display: flex; gap: 9px; align-items: baseline; }
+  .finding h4 .idx { font-family: var(--mono); font-size: 12px; color: var(--warn); }
+  .finding.hot h4 .idx { color: var(--danger); }
+  .finding .why { margin: 0 0 8px; font-size: 13.5px; color: var(--muted); }
+  .finding .rec { margin: 0; font-size: 13.5px; padding-left: 14px; border-left: 2px solid var(--accent); color: var(--ink-soft); }
+  .finding .rec b { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--accent); display: block; }
+
+  pre.block { background: var(--surface-sunk); border: 1px solid var(--rule); border-radius: 4px; padding: 14px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.8; margin: 16px 0; color: var(--ink-soft); }
+
+  .mock { border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; margin-top: 18px; }
+  .mock-bar { background: var(--surface-sunk); border-bottom: 1px solid var(--rule); padding: 9px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .mock-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-strong); flex: 0 0 auto; }
+  .mock-bar .path { font-family: var(--mono); font-size: 11.5px; }
+  .mock-body { padding: 18px 16px 22px; }
+
+  .dummy-banner { display: flex; gap: 10px; align-items: baseline; background: var(--warn-weak); color: var(--warn); border-radius: 4px; padding: 10px 14px; font-size: 13px; margin-bottom: 18px; }
+  .dummy-banner b { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; flex: 0 0 auto; }
+
+  .telbox { border: 1px solid var(--rule-strong); border-left: 4px solid var(--accent); border-radius: 4px; padding: 12px 15px; margin-bottom: 18px; font-size: 13.5px; background: var(--surface-sunk); }
+  .telbox strong { font-family: var(--mono); font-size: 18px; letter-spacing: .02em; }
+
+  fieldset { border: 0; border-top: 1px solid var(--rule); padding: 18px 0 4px; margin: 0; }
+  fieldset:first-of-type { border-top: 0; padding-top: 0; }
+  legend { font-family: var(--gothic); font-size: 13px; font-weight: 700; letter-spacing: .04em; padding: 0; margin-bottom: 4px; color: var(--accent-ink); }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px 16px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field.wide { grid-column: 1 / -1; }
+  .field > label, .qlabel { font-size: 12.5px; font-weight: 500; color: var(--ink-soft); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .req { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; background: var(--danger-weak); color: var(--danger); padding: 1px 4px; border-radius: 2px; }
+  .opt { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; background: var(--surface-sunk); color: var(--muted); padding: 1px 4px; border-radius: 2px; }
+
+  input[type="text"], input[type="tel"], input[type="email"], input[type="date"], select, textarea {
+    font-family: var(--gothic); font-size: 14px; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--rule-strong); border-radius: 3px; padding: 7px 9px; width: 100%; min-width: 0;
+  }
+  textarea { resize: vertical; line-height: 1.7; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, .tab:focus-visible, .daycell:focus-visible, tr:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice { display: inline-flex; align-items: flex-start; gap: 7px; border: 1px solid var(--rule-strong); border-radius: 3px; padding: 7px 12px; font-size: 13.5px; cursor: pointer; background: var(--surface); }
+  .choice:hover { border-color: var(--accent); }
+  .choice input { margin: 3px 0 0; accent-color: var(--accent); flex: 0 0 auto; }
+  .choice.sel { border-color: var(--accent); background: var(--accent-weak); color: var(--accent-ink); }
+  .choice .cl { display: flex; flex-direction: column; }
+  .choice .cs { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .choice.sel .cs { color: var(--accent-ink); opacity: .8; }
+
+  .cond { border-left: 3px solid var(--accent); background: var(--accent-weak); border-radius: 0 3px 3px 0; padding: 12px 14px; margin: 12px 0; }
+  .cond .condhead { font-size: 12px; font-weight: 700; color: var(--accent-ink); margin: 0 0 8px; font-family: var(--mono); letter-spacing: .04em; }
+  .cond.warnish { border-left-color: var(--warn); background: var(--warn-weak); }
+  .cond.warnish .condhead { color: var(--warn); }
+  .cond.plain { border-left-color: var(--rule-strong); background: var(--surface-sunk); }
+  .cond.plain .condhead { color: var(--muted); }
+
+  .qblock { padding: 12px 0; border-bottom: 1px dashed var(--rule); }
+  .qblock:last-child { border-bottom: 0; }
+  .qblock .qlabel { margin-bottom: 7px; }
+  .newtag { font-family: var(--mono); font-size: 9.5px; background: var(--ok-weak); color: var(--ok); padding: 1px 5px; border-radius: 2px; letter-spacing: .04em; }
+
+  .split { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 780px) { .split { grid-template-columns: 1fr 292px; } }
+
+  .cal { margin-bottom: 10px; }
+  .cal-title { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; color: var(--muted); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-grid .dow { font-family: var(--mono); font-size: 10px; text-align: center; color: var(--muted); padding-bottom: 2px; }
+  .cal-grid .dow.sun { color: var(--danger); }
+  .cal-grid .dow.sat { color: var(--accent); }
+  .daycell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; border-radius: 3px; color: var(--muted); background: transparent; border: 1px solid transparent; font-variant-numeric: tabular-nums; padding: 0; }
+  .daycell.blank { visibility: hidden; }
+  button.daycell { cursor: default; }
+  .daycell.open { background: var(--accent-weak); color: var(--accent-ink); font-weight: 700; cursor: pointer; border-color: transparent; }
+  .daycell.open:hover { border-color: var(--accent); }
+  .daycell.chosen { background: var(--accent); color: var(--btn-fg); font-weight: 700; }
+  .daycell.today { border-color: var(--rule-strong); }
+
+  .slotpick { display: flex; gap: 6px; margin: 8px 0 0; flex-wrap: wrap; }
+  .wishlist { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 6px; }
+  .wishlist li { display: flex; align-items: center; gap: 10px; border: 1px solid var(--rule); border-radius: 3px; padding: 7px 10px; background: var(--surface); font-size: 13px; }
+  .wishlist li .rank { font-family: var(--mono); font-size: 10.5px; background: var(--accent-weak); color: var(--accent-ink); padding: 2px 7px; border-radius: 2px; flex: 0 0 auto; }
+  .wishlist li .d { flex: 1; font-variant-numeric: tabular-nums; }
+  .wishempty { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
+
+  .calstop { border: 2px solid var(--danger); border-radius: 4px; padding: 14px; font-size: 13.5px; background: var(--danger-weak); color: var(--danger); }
+  .calstop strong { font-size: 17px; font-family: var(--mono); display: block; margin-top: 4px; }
+
+  .sidecard { border: 1px solid var(--rule); border-radius: 4px; background: var(--surface-sunk); padding: 12px 13px; align-self: start; }
+  .sidecard h4 { margin: 0 0 3px; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; }
+  .sidecard .updated { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 0 0 10px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+
+  .btn { appearance: none; font-family: var(--gothic); font-size: 13.5px; font-weight: 700; letter-spacing: .03em; border-radius: 3px; padding: 9px 18px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--btn-fg); }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--accent-ink); border-color: var(--rule-strong); }
+  .btn.small { font-size: 12px; padding: 5px 11px; font-weight: 500; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 20px; }
+  .actions .caveat { font-size: 12px; color: var(--muted); }
+
+  .errmsg { color: var(--danger); font-size: 12.5px; margin-top: 6px; }
+
+  .summary { margin-top: 18px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent-weak); padding: 14px 16px; }
+  .summary h4 { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; color: var(--accent-ink); }
+  .summary dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 13px; }
+  .summary dt { color: var(--accent-ink); font-weight: 500; white-space: nowrap; }
+  .summary dd { margin: 0; color: var(--ink-soft); min-width: 0; overflow-wrap: anywhere; }
+  .summary.bad { border-color: var(--danger); background: var(--danger-weak); }
+  .summary.bad h4 { color: var(--danger); }
+
+  .fscale { display: flex; gap: 6px; align-items: center; margin-left: auto; font-size: 11.5px; color: var(--muted); }
+  .fscale button { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ink); border-radius: 2px; cursor: pointer; }
+  .fscale button[aria-pressed="true"] { background: var(--accent); color: var(--btn-fg); border-color: var(--accent); }
+
+  /* ledger */
+  table.ledger { min-width: 1180px; font-size: 12.5px; }
+  table.ledger th { position: relative; }
+  table.ledger th .col { font-family: var(--mono); font-size: 9.5px; color: var(--accent); display: block; }
+  table.ledger td { white-space: nowrap; }
+  table.ledger tbody tr.stale { background: var(--danger-weak); }
+  table.ledger td.flag { background: var(--warn-weak); color: var(--warn); font-weight: 700; }
+  table.ledger .ops { background: var(--accent-weak); }
+  table.ledger thead th.ops { background: var(--accent-weak); color: var(--accent-ink); }
+  .pill { font-size: 11.5px; padding: 2px 9px; border-radius: 11px; white-space: nowrap; display: inline-block; font-weight: 500; }
+  .pill.s-new { background: var(--danger-weak); color: var(--danger); }
+  .pill.s-call { background: var(--warn-weak); color: var(--warn); }
+  .pill.s-fixed { background: var(--ok-weak); color: var(--ok); }
+  .pill.s-cancel { background: var(--surface-sunk); color: var(--muted); }
+  .pill.s-lost { background: var(--hold-weak); color: var(--hold); }
+  .kpis { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .kpi { border: 1px solid var(--rule); border-radius: 4px; padding: 7px 13px; background: var(--surface-sunk); display: flex; align-items: baseline; gap: 8px; }
+  .kpi b { font-family: var(--mono); font-size: 19px; font-variant-numeric: tabular-nums; }
+  .kpi span { font-size: 11.5px; color: var(--muted); }
+  .kpi.alert { background: var(--danger-weak); border-color: var(--danger); }
+  .kpi.alert b, .kpi.alert span { color: var(--danger); }
+  .kpi.warn { background: var(--warn-weak); border-color: var(--warn); }
+  .kpi.warn b, .kpi.warn span { color: var(--warn); }
+
+  /* availability editor */
+  .avail-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 860px) { .avail-grid { grid-template-columns: 1fr 340px; } }
+  table.avail { min-width: 520px; }
+  table.avail td.mark { text-align: center; }
+  .marktoggle { font-family: var(--mono); font-size: 15px; width: 34px; height: 30px; border-radius: 3px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--muted); cursor: pointer; }
+  .marktoggle[data-on="1"] { background: var(--accent-weak); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  table.avail tr.weekend td { background: var(--surface-sunk); }
+  .jsonbox { background: var(--surface-sunk); border: 1px solid var(--rule); border-radius: 4px; padding: 12px; font-family: var(--mono); font-size: 11.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; max-height: 320px; overflow-y: auto; color: var(--ink-soft); margin: 0; }
+  .alarmbox { border: 1px solid var(--danger); background: var(--danger-weak); color: var(--danger); border-radius: 4px; padding: 11px 13px; font-size: 13px; margin-bottom: 12px; }
+  .alarmbox.ok { border-color: var(--ok); background: var(--ok-weak); color: var(--ok); }
+
+  .footer { border-top: 1px solid var(--rule); margin-top: 40px; padding-top: 18px; font-size: 12.5px; color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <h1>健診・人間ドック 予約依頼フォーム 設計案</h1>
+      <span class="kicker">長崎北徳洲会病院 健康管理センター</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="資料の表示切替">
+      <button class="tab" role="tab" id="tab-doc" aria-controls="panel-doc" aria-selected="true"><span class="n">01</span>設計案</button>
+      <button class="tab" role="tab" id="tab-form" aria-controls="panel-form" aria-selected="false"><span class="n">02</span>フォーム試作</button>
+      <button class="tab" role="tab" id="tab-ledger" aria-controls="panel-ledger" aria-selected="false"><span class="n">03</span>台帳試作</button>
+      <button class="tab" role="tab" id="tab-avail" aria-controls="panel-avail" aria-selected="false"><span class="n">04</span>受付可能日試作</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ==================== TAB 1 ==================== -->
+<div id="panel-doc" role="tabpanel" aria-labelledby="tab-doc">
+
+  <section class="doc prose">
+    <div class="note key">
+      <span class="note-label">この資料について</span>
+      <p>院内で作成済みの <code>docs/01_要件定義.md</code>〜<code>06_サイトへの導線設置.md</code> と <code>CLAUDE.md</code> をもとに、関係者へ共有できる 1 枚にまとめたものです。原本はリポジトリにあり、<strong>矛盾があった場合は原本が正</strong>です。読んでいて見つかった資料間の食い違いは 03 節に挙げました。</p>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">01</span>目的</h2>
+    <p class="lead">健診・人間ドックの予約受付が電話のみで、受付スタッフの電話対応負荷が高い。<em>これを減らすことが目的であり、Web 化そのものが目的ではない。</em></p>
+    <p>判断に迷ったときの基準は 1 つだけです —— <strong>受付スタッフの電話が 1 本減るか、1 本あたりが短くなるか</strong>。ここに効かない機能は作りません。</p>
+
+    <h3>現状の課題</h3>
+    <ul>
+      <li>受付は電話のみ。受診希望者は勤務時間中に電話する必要がある</li>
+      <li>1 件あたりコース・胃部検査・補助券の有無・妊娠の可能性などを口頭で聞き取るため長い（仮・5〜10 分）</li>
+      <li>聞き取り内容が受付担当 8 名それぞれの手元にあり、<strong>依頼の一覧が存在しない</strong>。対応漏れ・二重対応が起こりうる</li>
+    </ul>
+
+    <h3>期待効果</h3>
+    <div class="scroller">
+      <table class="t-narrow">
+        <thead><tr><th>指標</th><th>現状</th><th>目標</th></tr></thead>
+        <tbody>
+          <tr><td>受付可能時間</td><td>9:00〜16:30（月〜土）＝ 7.5 時間/日</td><td>24 時間</td></tr>
+          <tr><td>1 件あたりの電話時間</td><td>（仮）5〜10 分</td><td>3 分以下（確認と日程調整のみ）</td></tr>
+          <tr><td>依頼の一覧化</td><td>なし</td><td>全件が台帳に記録される</td></tr>
+          <tr><td>対応漏れ</td><td>把握できていない</td><td>未対応が台帳上で可視化される</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">02</span>方式の決定</h2>
+    <p>公式サイトの更新は外部制作業者が行い、院内では触れません。この制約が方式を決めました —— <strong>フォーム本体をサイト側に置かない。</strong></p>
+    <pre class="block">[公式サイト /medical_checkup/reservation.php]
+        │  業者作業はここだけ（リンクを1本追加）
+        ▼
+[GAS Webアプリ] 予約依頼フォーム（自作・自分で保守）
+        │
+        ├─→ スプレッドシート「予約依頼台帳」へ直接1行追加
+        ├─→ 受付担当へ通知メール
+        └─→ 申込者へ自動返信メール</pre>
+
+    <div class="scroller">
+      <table class="t-wide">
+        <thead><tr><th></th><th>案B：サイト内に PHP フォーム</th><th>案D：GAS Web アプリ</th></tr></thead>
+        <tbody>
+          <tr><td>業者作業</td><td>フォーム 3 画面＋メール送信＋検証</td><td><strong>リンク 1 本の追加のみ</strong></td></tr>
+          <tr><td>項目を 1 つ追加したい</td><td>見積 → 発注 → 実装。数週間</td><td><strong>自分で 15 分</strong></td></tr>
+          <tr><td>コース名・料金の改定</td><td>業者作業または設定ファイル経由</td><td>自分でコード修正</td></tr>
+          <tr><td>台帳への書き込み</td><td>メール本文をパース（壊れやすい）</td><td><strong>スプレッドシートへ直接書く。パース不要</strong></td></tr>
+          <tr><td>URL</td><td><code>www.nk-toku.jp/…</code>（病院ドメイン）</td><td><code>script.google.com/…</code>（病院ドメインにできない）</td></tr>
+          <tr><td>費用</td><td>初期・改修のたびに発生</td><td>ほぼゼロ</td></tr>
+          <tr><td>前提</td><td>なし</td><td>Google クラウド利用の院内承認が必要</td></tr>
+          <tr><td></td><td style="color:var(--muted)">保留（切り戻し先）</td><td style="color:var(--ok);font-weight:700">採用</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>案 D の弱点は URL が病院ドメインにならないこと 1 点です。リンク元のページで「病院が用意した申込フォームです」と明示し、フォーム側も病院サイトと同系統のデザインにして補います。</p>
+    <div class="note caution">
+      <span class="note-label">切り戻しの条件</span>
+      <p><strong>Google クラウド利用が院内規程で認められない場合は、案 B へ切り替えます。</strong>その場合に必要な業者向け仕様は <code>docs/02_メール仕様.md</code> がそのまま使えるよう残してあります。この判断が全体の最上流です（未決 #1）。</p>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">03</span>資料間の食い違い</h2>
+    <p>既存資料を通して読んだ際に見つかった不整合です。<strong>どちらも「古い資料を単独で読むと、間違ったものを作ってしまう」類のもの</strong>なので、原本への追記をおすすめします。</p>
+
+    <div class="finding hot">
+      <h4><span class="idx">01</span>要件定義書 §7 と F-06 が、採用しなかった案 B のまま残っている</h4>
+      <p class="why"><code>01_要件定義.md</code>（9/4 版）の §7 システム構成は「サイト上の PHP フォーム → 受付メール → <strong>メール本文の機械可読ブロックを GAS が解析して起票</strong>」と書かれています。しかし <code>CLAUDE.md</code>（9/15）で案 D を採用しており、GAS からスプレッドシートへ直接書くため<strong>メール解析による起票は不要</strong>です。F-06「受付通知メールを解析し、スプレッドシートに1行追加」も同じく案 B 前提です。要件定義書だけを読んだ人は、作る必要のない解析処理を実装してしまいます。</p>
+      <p class="rec"><b>推奨</b>01_要件定義.md の §7 と F-06 の冒頭に「案 D 採用により無効。CLAUDE.md を参照」と 1 行追記する。削除ではなく無効の明示にしておくと、案 B へ切り戻すときにそのまま使える。</p>
+    </div>
+
+    <div class="finding hot">
+      <h4><span class="idx">02</span>電話受付時間が、要件定義書とサイト調査メモで食い違っている</h4>
+      <p class="why"><code>01_要件定義.md</code> §1.1 は「午前 9:00〜12:00／午後 17:00〜20:00（仮・要確認）」、期待効果の表は「平日・土 計 6 時間/日」。一方 <code>04_サイト調査メモ.md</code> は公式サイトの実地調査として <strong>9:00〜16:30（月〜土）</strong>を確認し、「前回までの記載は誤りでした」と明記しています。04 が正ですが、01 側は直っていません。</p>
+      <p class="rec"><b>推奨</b>01 の §1.1 と期待効果の表を 9:00〜16:30（＝7.5 時間/日）に修正する。<strong>この資料の 01 節の表は修正後の値で書いてあります。</strong>自動返信メールや導線ページの文言にも同じ時間が出るため、ここがずれたまま公開すると申込者への案内が誤りになる。</p>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">04</span>全体の流れ</h2>
+    <div class="flow">
+      <div class="flow-step"><span class="actor vendor">業者</span><div class="flow-body"><strong>予約・お問い合わせページにリンクを 1 本足す</strong><span>電話案内より<strong>上</strong>に置く。下に置くと電話をかける人が減らず、目的を果たさない。文言は「予約する」ではなく<strong>「予約を依頼する」</strong>。</span></div></div>
+      <div class="flow-step"><span class="actor applicant">申込者</span><div class="flow-body"><strong>フォームに入力する（24 時間）</strong><span>区分とコースを選ぶと、関係する項目だけが出る。希望日は受付可能日カレンダーから最大 3 つ。</span></div></div>
+      <div class="flow-step"><span class="actor system">GAS</span><div class="flow-body"><strong>サーバ側で再検証し、受付番号を採番する</strong><span>選ばれた日がその時点でも受付可能かを再確認。採番は <code>LockService</code> で排他（重複すると台帳が壊れる）。</span></div></div>
+      <div class="flow-step"><span class="actor system">GAS</span><div class="flow-body"><strong>台帳へ 1 行追加し、メールを 2 通送る</strong><span>受付担当へ通知、申込者へ自動返信。ステータスの初期値は「未対応」。</span></div></div>
+      <div class="flow-step"><span class="actor staff">受付担当</span><div class="flow-body"><strong>翌朝、台帳の「未対応」を確認して電話する</strong><span>安全確認に「該当あり／わからない」がある行は色が付く。必要なら健診担当医に相談。</span></div></div>
+      <div class="flow-step"><span class="actor staff">受付担当</span><div class="flow-body"><strong>日程を確定し、ステータスを更新する</strong><span>担当者名と確定日時を入力。既存の予約台帳へ転記（当面は二重入力を許容）。</span></div></div>
+      <div class="flow-step"><span class="actor staff">受付担当</span><div class="flow-body"><strong>受付可能日シートを毎朝更新する</strong><span>この運用が止まると<strong>フォーム全体が使えなくなる</strong>。枯渇・未更新は GAS が自動通知する（07 節）。</span></div></div>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">05</span>入力項目と分岐</h2>
+    <p>分岐の目的は見た目ではなく、<strong>受付担当が折り返し電話で聞き直す項目をゼロに近づけること</strong>です。非表示の項目は送信データから除外し、台帳では空欄になります。</p>
+  </section>
+  <div class="scroller">
+    <table class="t-wide">
+      <thead><tr><th>グループ</th><th>項目</th><th>表示条件</th><th>必須</th></tr></thead>
+      <tbody>
+        <tr><td>A 共通</td><td>氏名／フリガナ／生年月日／性別／電話番号／メール／連絡希望時間帯／受診歴</td><td>常時</td><td>すべて必須</td></tr>
+        <tr><td>A 共通</td><td>第 1〜第 3 希望（日付＋午前・午後）</td><td>常時。<strong>受付可能日からのみ選択</strong></td><td>第 1 希望のみ必須</td></tr>
+        <tr><td>B 区分</td><td>支払方法（現金／カード）</td><td>個人（全額自己負担）</td><td>必須</td></tr>
+        <tr><td>B 区分</td><td>保険証の記号・番号／被扶養者の同時受診</td><td>協会けんぽ</td><td>必須</td></tr>
+        <tr><td>B 区分</td><td>健保組合名／補助券の有無</td><td>健康保険組合の補助</td><td>必須</td></tr>
+        <tr><td>B 区分</td><td>市町名／受診券の有無</td><td>自治体の特定健診・がん検診</td><td>必須</td></tr>
+        <tr><td>C コース</td><td>胃部検査（胃カメラ／バリウム／希望しない）</td><td>胃部検査を含むコース</td><td>必須</td></tr>
+        <tr><td>C コース</td><td>鎮静剤の希望</td><td>胃部検査＝胃カメラ</td><td>必須</td></tr>
+        <tr><td>D 追加検査</td><td>8 項目から複数選択</td><td>常時</td><td>任意</td></tr>
+        <tr><td>E 安全確認</td><td>妊娠中・妊娠の可能性・授乳中</td><td>性別＝女性</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>ペースメーカー・体内金属・刺青／造影剤アレルギー</td><td>頭部 CT・MRI を選択</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>血をサラサラにする薬</td><td>胃部検査＝胃カメラ</td><td>必須</td></tr>
+        <tr><td>E 安全確認</td><td>車いす・介助が必要／受診日 2 週間以内の発熱</td><td>常時</td><td>必須</td></tr>
+        <tr><td>F 備考</td><td>ご質問・ご要望（全角 150 字）</td><td>常時</td><td>任意</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="doc prose">
+    <div class="note alarm">
+      <span class="note-label">安全確認欄の設計（厳守）</span>
+      <p>回答は<strong>「該当あり／該当なし／わからない」の 3 択のみ</strong>。病名・薬剤名・症状は取得しません。詳細は折り返しの電話で聞き取ります。平文メールとクラウド台帳に残る要配慮個人情報を最小化するための設計であり、親切心で自由記述欄を足さないでください。</p>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">06</span>スコープ外</h2>
+    <div class="scroller">
+      <table class="t-narrow">
+        <thead><tr><th>作らないもの</th><th>理由</th><th>将来</th></tr></thead>
+        <tbody>
+          <tr><td>空き枠のリアルタイム表示</td><td>枠管理が紙・Excel 運用。Web 連携すると二重管理になる</td><td>検討</td></tr>
+          <tr><td>Web 上での予約確定</td><td>安全確認と枠調整に人の判断が必要</td><td>対応しない</td></tr>
+          <tr><td>事業所健診・雇入時健診の申込</td><td>複数名一括で入力構造が全く異なる</td><td>第 2 弾で別フォーム</td></tr>
+          <tr><td>オンライン決済</td><td>当日窓口精算で運用できている</td><td>対応しない</td></tr>
+          <tr><td>電子カルテ・健診システム連携</td><td>IF 仕様・費用が未確認</td><td>検討</td></tr>
+          <tr><td>変更・キャンセルの Web 受付</td><td>本人確認の仕組みが必要</td><td>当面は電話</td></tr>
+          <tr><td>ログイン・マイページ</td><td>年 1 回の利用にアカウントは過剰</td><td>対応しない</td></tr>
+          <tr><td>添付ファイルの受け取り</td><td>個人情報の保管責任が増える</td><td>対応しない</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">07</span>受付可能日カレンダー</h2>
+    <p>申込者に日付を自由入力させず、<strong>受付担当がスプレッドシートに入力した日だけを選べるようにします</strong>。これは空き枠管理ではありません —— <em>◯を入れた日＝「申し込みを受け付ける日」であって、「予約が確定できる日」ではありません。</em></p>
+    <pre class="block">[スプレッドシート「受付可能日」]  ← 健診受付8名が編集
+        │  GASが10分ごとにJSONを生成・公開
+        ▼
+   受付可能日JSON（日付と時間帯のみ。個人情報は含まない）
+        │
+        ├──→ [フォーム] 選べる日だけを濃く表示。それ以外は押せない
+        └──→ [サーバ側] 送信時に同じJSONで再検証（改ざん・時間差対策）</pre>
+
+    <div class="note alarm">
+      <span class="note-label">このシステム最大の弱点</span>
+      <p><strong>このカレンダーは、更新が止まった瞬間にフォーム全体が使えなくなります。</strong>気づく仕組みがないと、申し込みがゼロになった理由が誰にも分かりません。選択可能日が 7 日分を下回ったとき、および 3 日以上更新がないときに GAS が受付担当と情シスへ通知します（F-13）。<strong>この通知は必須機能です。</strong></p>
+    </div>
+
+    <h3>取得に失敗したとき・候補が空のとき</h3>
+    <p>カレンダーを隠し、電話案内に切り替えます。<strong>空のカレンダーを出さないこと。</strong>申込者が「押せる日がない画面」を見て諦めるのが最悪の結果です。04 タブで、候補を空にしたときの表示を実際に確認できます。</p>
+
+    <h3>送信時の再検証（省略不可）</h3>
+    <p>ページを開いたまま数時間放置して送信されると、すでに受付を止めた日の依頼が入ります。送信時にサーバ側でも受付可能日を取得し、選ばれた日付と時間帯を再確認してください。不一致なら「選択された日は受付が終了しました。お手数ですが選び直してください」と表示します。</p>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">08</span>メール 2 通</h2>
+    <p>案 D では台帳へ直接書き込むため、起票のためのメール解析は不要です。ただし<strong>機械可読ブロックは残します</strong> —— 案 B へ切り戻す場合の発注仕様であり、かつ台帳が壊れたときにメールから復旧できる控えになるためです。</p>
+
+    <div class="mail">
+      <div class="mail-head"><span>院内受付宛 &middot; 通知メール</span><b>kenshin-uketsuke@nk-toku.jp（仮）</b></div>
+      <pre>件名：【健診予約依頼】20261201-0001 長崎 花子 / 半日人間ドック
+
+予約の依頼を受け付けました。折り返しお電話をお願いします。
+
+受付番号：20261201-0001
+受付日時：2026-12-01 21:14:32
+
+■ 連絡先
+　お名前　　：長崎 花子（ナガサキ ハナコ）
+　生年月日　：1979-05-12（47歳）／女性
+　電話　　　：090-0000-0000
+　メール　　：hanako@example.com
+　連絡希望　：夕方以降
+　受診歴　　：初めて
+
+■ ご希望
+　区分　　　：健康保険組合の補助を利用（○○健康保険組合／補助券あり）
+　コース　　：半日人間ドック
+　胃の検査　：胃カメラ（鎮静剤 希望する）
+　追加検査　：乳がん検査（マンモグラフィ）、骨密度
+
+■ 希望日
+　第1希望　：2026-12-08（火）午前
+　第2希望　：2026-12-11（金）午前
+　第3希望　：（未選択）
+
+■ 安全確認（電話で必ず確認してください）
+　妊娠・授乳　　　　　　：該当なし
+　血をサラサラにする薬　：<mark>わからない　★要確認</mark>
+　車いす・介助　　　　　：不要
+　2週間以内の発熱等　　 ：該当なし
+
+■ ご質問・ご要望
+　鎮静剤を使った場合、当日の車の運転はできますか。
+
+========== 以下はシステム処理用（編集しないでください） ==========
+#DATA_BEGIN
+{"uketsuke_no":"20261201-0001","uketsuke_at":"2026-12-01 21:14:32", ... }
+#DATA_END</pre>
+    </div>
+
+    <div class="mail">
+      <div class="mail-head"><span>申込者宛 &middot; 自動返信</span><b>送信専用</b></div>
+      <pre>件名：【長崎北徳洲会病院】健診の予約依頼を受け付けました（20261201-0001）
+
+長崎 花子 様
+
+予約のご依頼を受け付けました。
+<mark>このメールは受付の確認であり、予約はまだ確定していません。</mark>
+2営業日以内（日曜・祝日を除く）に、担当者からお電話いたします。
+
+　受付番号　：20261201-0001
+　受付日時　：2026-12-01 21:14
+　ご希望コース：半日人間ドック
+　第1希望　：2026-12-08（火）午前
+　第2希望　：2026-12-11（金）午前
+
+3営業日を過ぎても連絡がない場合は、お手数ですが
+健康管理センター（095-813-5820）までお電話ください。
+
+長崎北徳洲会病院　健康管理センター
+電話 095-813-5820（直通）／FAX 095-813-5821
+電話受付 9:00〜16:30（月〜土）　日曜・祝日・年末年始は休みです
+
+※このメールは送信専用です。ご返信いただいてもお答えできません。</pre>
+    </div>
+
+    <div class="note caution">
+      <span class="note-label">自動返信に載せてはいけないもの</span>
+      <p><strong>安全確認の回答（妊娠・体内金属・造影剤・服薬）、保険証の記号・番号、生年月日は含めません。</strong>家族共用のメールアドレスに届く場合を想定しています。上の文面に生年月日が無いのは省略ではなく、仕様です。</p>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">09</span>個人情報の扱い</h2>
+    <ul>
+      <li><strong>含まれる情報</strong>：氏名、フリガナ、生年月日、性別、電話番号、メール、保険証記号番号（区分による）、受診希望内容、安全確認 3 択の回答</li>
+      <li><strong>要配慮個人情報</strong>：妊娠・体内金属・アレルギー・服薬は健康状態に関する情報。<strong>該当の有無（3 択）のみ</strong>を取得し、病名・薬剤名は取得しない</li>
+      <li><strong>保管場所</strong>：（仮）Google スプレッドシート。<strong>「リンクを知る全員」は使わず、8 名＋情シスの個人アカウントを個別に追加</strong></li>
+      <li><strong>アカウント</strong>：無償 Gmail の寄せ集めではなく Google Workspace を推奨。退職者のアカウントを病院が止められないため（<code>docs/05_台帳の限定共有.md</code>）</li>
+      <li><strong>保持期間</strong>：（仮）1 年。経過後は CSV へ退避してから台帳から削除</li>
+    </ul>
+    <p>確定した健診の記録は既存の健診システム側が正本です。この台帳は<strong>予約依頼の受付記録</strong>であって、健診記録ではありません。</p>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">10</span>主なリスク</h2>
+    <div class="scroller">
+      <table class="t-wide">
+        <thead><tr><th>リスク</th><th>影響</th><th>対応</th></tr></thead>
+        <tbody>
+          <tr><td>受付可能日の更新が止まり、選べる日がなくなる</td><td style="color:var(--danger)">大</td><td>枯渇（7 日分未満）・未更新（3 日）を GAS が自動通知。枯渇時は電話案内へ切り替え</td></tr>
+          <tr><td>Google クラウド利用が規程上認められない</td><td style="color:var(--danger)">大</td><td>案 B へ全面切り替え。8 名の同時編集ができなくなるため、ステータス更新は当番制にする</td></tr>
+          <tr><td>通知メールが迷惑メール判定され届かない</td><td style="color:var(--danger)">大</td><td>SPF を事前確認。試験時に 3 系統へ着信確認。<strong>加えて、台帳に 24 時間以上「未対応」があれば気づける運用にする</strong></td></tr>
+          <tr><td>依頼が来ても誰も見ていない（休日明け等）</td><td style="color:var(--warn)">中</td><td>自動返信で「2 営業日以内」と明示して期待値を下げる。日次確認の当番を決める</td></tr>
+          <tr><td>台帳から既存予約台帳への二重入力</td><td style="color:var(--warn)">中</td><td>当面は許容。台帳の列順を既存台帳に合わせ、転記を機械的にできる形にする</td></tr>
+          <tr><td>開いたまま放置して送信され、締切後の日が入る</td><td style="color:var(--warn)">中</td><td>送信時のサーバ側再検証（07 節）</td></tr>
+          <tr><td>受付可能日 JSON が匿名公開で外部から見える</td><td style="color:var(--warn)">中</td><td>個人情報は含まないが、公開の可否を院内で確認（未決 #10）</td></tr>
+          <tr><td>作成者（情シス 1 名）の不在時に台帳側が壊れる</td><td style="color:var(--warn)">中</td><td>GAS のコードと台帳構成を院内サーバに文書保管。復旧手順を 1 枚にまとめる</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="doc prose">
+    <h2><span class="sec">11</span>進め方と次の一手</h2>
+    <h3>現在の状況</h3>
+    <ul>
+      <li>要件定義・メール仕様・受付可能日カレンダー仕様・サイト調査 —— <strong>完了</strong></li>
+      <li>画面モック（<code>mock/index.html</code>）—— <strong>動作する状態</strong>。分岐・検証・確認画面・メール文面まで確認できる</li>
+      <li>GAS 側（<code>gas/</code>）—— <strong>未着手</strong></li>
+    </ul>
+
+    <h3>次にやること</h3>
+    <pre class="block">1. mock/index.html に未反映の8項目を反映（04_サイト調査メモ §6）
+2. スプレッドシート2シート（予約依頼台帳／受付可能日）を作る
+3. GAS：フォーム配信（HtmlService）＋送信処理＋メール2通
+4. GAS：受付可能日の枯渇・未更新の通知トリガー
+5. ダミー10件で疎通確認
+6. 受付担当2〜3名に触ってもらう
+7. 業者へリンク追加を依頼</pre>
+
+    <h3>モックへの未反映 8 項目</h3>
+    <p>02 タブの試作では、このうち<strong>内容に関わる 3・4・5・6・7・8 を反映済み</strong>です（該当箇所に <span class="newtag">反映</span> を付けています）。原本のモックへ移す際の参照にしてください。</p>
+    <div class="scroller">
+      <table class="t-narrow">
+        <thead><tr><th class="num">#</th><th>内容</th><th>状態</th><th>02 タブ</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>電話番号・FAX・受付時間を実際の値に修正</td><td>対応済み</td><td>反映</td></tr>
+          <tr><td class="num">2</td><td>住所・センター名を実際の表記に修正</td><td>対応済み</td><td>反映</td></tr>
+          <tr><td class="num">3</td><td>「呼吸器ドック」をコース一覧に追加</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映（要：正式名称の確認）</td></tr>
+          <tr><td class="num">4</td><td>安全確認に「受診日 2 週間以内の発熱」を追加</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
+          <tr><td class="num">5</td><td>鎮静剤「希望する」で、車で来院できない旨を表示</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
+          <tr><td class="num">6</td><td>乳腺・婦人科オプションの曜日制限</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映（注意表示のみ。選択は可能）</td></tr>
+          <tr><td class="num">7</td><td>文字サイズ切り替え（小・中・大）</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
+          <tr><td class="num">8</td><td>「申し込み前のご注意」へのリンクを冒頭に配置</td><td style="color:var(--warn)">未対応</td><td style="color:var(--ok)">反映</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <span class="note-label">7 について</span>
+      <p>原本では「業者作業」と整理されていましたが、<strong>案 D ではフォームは GAS 側＝院内の実装範囲</strong>なので、これは自分で作る項目になります。02 タブの右上に付けた切り替えがその実装例です。</p>
+    </div>
+
+    <h3>合意が必要な相手</h3>
+    <div class="scroller">
+      <table class="t-narrow">
+        <thead><tr><th>相手</th><th>何について</th><th>いつ</th></tr></thead>
+        <tbody>
+          <tr><td>個人情報保護担当・徳洲会本部</td><td>Google クラウド利用の可否、取得項目</td><td><strong>最優先</strong></td></tr>
+          <tr><td>健診部門責任者</td><td>折り返し 2 営業日、日次確認の当番、受付可能日の更新当番</td><td>フェーズ 0</td></tr>
+          <tr><td>健診部門</td><td>正式なコース一覧（呼吸器ドックを含む）・料金</td><td>フェーズ 1</td></tr>
+          <tr><td>健診受付 8 名</td><td>台帳の使い方、当番</td><td>試用時</td></tr>
+          <tr><td>外部制作業者</td><td>リンク追加の見積・作業日数</td><td>公開前</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="doc prose" id="undecided">
+    <h2><span class="sec">12</span>未決事項</h2>
+    <p>要件定義書の 11 件と <code>CLAUDE.md</code> の 5 件を突き合わせ、重複を畳んだ一覧です。仮置きの値が入っているので、違うものだけ直してください。</p>
+  </section>
+  <div class="scroller">
+    <table class="t-wide">
+      <thead><tr><th class="num">#</th><th>項目</th><th>現在の仮置き</th><th>決める人</th><th>時期</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td><strong>クラウドへの受診希望者情報の保管可否</strong></td><td>（仮）可</td><td>個人情報保護担当・本部</td><td style="color:var(--danger);font-weight:700">最優先。不可なら案 B へ</td></tr>
+        <tr><td class="num">2</td><td>Google Workspace（有償）を使えるか</td><td>（仮）使う</td><td>事務長・情シス</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">3</td><td>正式なコース一覧・料金（呼吸器ドック含む）</td><td>（仮）外部予約サイト掲載の内容</td><td>健診部門</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">4</td><td>安全確認を 3 択に留める方針</td><td>（仮）3 択とする</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">5</td><td>折り返し連絡の目安と日次確認の当番</td><td>（仮）2 営業日以内・当番制</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">6</td><td>受付可能日の更新当番と、確保する候補日数</td><td>（仮）日替わり当番／2 週間先まで最低 10 日分</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">7</td><td>台帳データの保持期間</td><td>（仮）1 年</td><td>個人情報保護担当</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">8</td><td>現在の電話件数（1 週間計測）</td><td>（仮）月 20〜100 件</td><td>健診受付</td><td>フェーズ 1</td></tr>
+        <tr><td class="num">9</td><td>受付用メールアドレスの新設と 8 名の閲覧方法</td><td>（仮）専用アドレスを新設</td><td>情シス・健診部門</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">10</td><td>受付可能日 JSON を匿名公開してよいか</td><td>（仮）可（個人情報を含まない）</td><td>個人情報保護担当</td><td>フェーズ 0</td></tr>
+        <tr><td class="num">11</td><td>事業所健診の別導線の内容</td><td>（仮）電話番号と PDF 様式のみ</td><td>健診部門</td><td>第 2 弾</td></tr>
+        <tr><td class="num">12</td><td>サーバ仕様（PHP・SPF・cron）</td><td>未確認</td><td>業者へ照会</td><td style="color:var(--muted)">案 B へ切り替えた場合のみ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer prose">
+    <p>原本：<code>docs/01_要件定義.md</code>／<code>02_メール仕様.md</code>／<code>03_受付可能日カレンダー仕様.md</code>／<code>04_サイト調査メモ.md</code>／<code>05_台帳の限定共有.md</code>／<code>06_サイトへの導線設置.md</code>／<code>CLAUDE.md</code>。この資料はそれらの要約であり、実装時は原本を参照してください。</p>
+  </div>
+</div>
+
+<!-- ==================== TAB 2 ==================== -->
+<div id="panel-form" role="tabpanel" aria-labelledby="tab-form" hidden>
+  <div class="prose">
+    <h2 style="margin-top:6px"><span class="sec">02</span>フォーム試作</h2>
+    <p>既存モックの項目・分岐を再現したうえで、未反映だった 3〜8 を反映しています。新しく足した箇所には <span class="newtag">反映</span> が付いています。</p>
+  </div>
+
+  <div class="mock">
+    <div class="mock-bar">
+      <span class="dot"></span><span class="path">script.google.com/macros/s/…/exec</span>
+      <span class="fscale">文字サイズ <span class="newtag">反映</span>
+        <button type="button" id="fsS" aria-pressed="false">小</button>
+        <button type="button" id="fsM" aria-pressed="true">中</button>
+        <button type="button" id="fsL" aria-pressed="false">大</button>
+      </span>
+    </div>
+    <div class="mock-body">
+      <div class="dummy-banner"><b>試作</b><span>項目・分岐・検証の確認用です。<strong>送信は行われず、入力内容はどこにも保存されません。</strong></span></div>
+
+      <div class="telbox">
+        お急ぎの方、入力にお困りの方はお電話ください。<br>
+        健康管理センター <strong>095-813-5820</strong>（直通）／FAX 095-813-5821<br>
+        電話受付 9:00〜16:30（月〜土）　日曜・祝日・年末年始は休みです
+      </div>
+
+      <div class="cond plain">
+        <p class="condhead">お申し込みの前に <span class="newtag">反映</span></p>
+        <p style="margin:0;font-size:13.5px"><a href="#" onclick="return false">「申し込み前のかならずお読みください」</a>をご確認のうえ、お進みください。<br>
+        <strong>事業所・団体でまとめてお申し込みの方</strong>は、こちらのフォームでは受け付けていません。<a href="#" onclick="return false">事業所健診のご案内</a>をご覧ください。</p>
+      </div>
+
+      <form id="applyForm" novalidate>
+        <fieldset>
+          <legend>1. お申し込みの区分</legend>
+          <p class="hint">費用のお支払い方法にあたるものをお選びください。</p>
+          <div class="choice-row" id="kubunRow"></div>
+          <div id="kubunExtra"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>2. ご希望のコース</legend>
+          <p class="hint">迷われる場合は「決めていない・相談したい」をお選びください。お電話で一緒に決めます。</p>
+          <div class="choice-row" id="courseRow"></div>
+          <div id="igiBlock" hidden>
+            <div class="cond">
+              <p class="condhead">胃の検査について</p>
+              <span class="qlabel">どちらをご希望ですか <span class="req">必須</span></span>
+              <div class="choice-row" id="igiRow" style="margin-top:7px"></div>
+              <div id="chinseiBlock" hidden style="margin-top:12px">
+                <span class="qlabel">鎮静剤（眠くなるお薬）のご希望 <span class="req">必須</span></span>
+                <div class="choice-row" id="chinseiRow" style="margin-top:7px"></div>
+                <div id="chinseiWarn" hidden class="cond warnish" style="margin-top:10px">
+                  <p class="condhead">ご注意 <span class="newtag">反映</span></p>
+                  <p style="margin:0;font-size:13.5px">鎮静剤を使用した場合、<strong>当日はお車・バイク・自転車でお帰りいただけません。</strong>公共交通機関をご利用になるか、ご家族の送迎をご手配ください。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>3. 追加の検査（任意）</legend>
+          <p class="hint">ご希望のものをお選びください。費用はお電話でご案内します。</p>
+          <div class="choice-row" id="optionRow"></div>
+          <div id="fujinkaWarn" hidden class="cond warnish">
+            <p class="condhead">実施日についてのご注意 <span class="newtag">反映</span></p>
+            <p style="margin:0;font-size:13.5px">乳腺・婦人科の検査は<strong>水曜 10:00〜12:00 と金曜 14:00〜16:00</strong> に限って実施しています。ご希望日によっては別の日をご案内する場合があります。<strong>お申し込みはそのまま進めていただけます。</strong>日程はお電話で調整します。</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>4. ご本人について</legend>
+          <div class="field-grid">
+            <div class="field"><label for="fName">お名前 <span class="req">必須</span></label><input type="text" id="fName" maxlength="40" placeholder="長崎 花子"></div>
+            <div class="field"><label for="fKana">フリガナ <span class="req">必須</span></label><input type="text" id="fKana" maxlength="40" placeholder="ナガサキ ハナコ"></div>
+            <div class="field"><label for="fBirth">生年月日 <span class="req">必須</span></label><input type="date" id="fBirth"></div>
+            <div class="field wide"><span class="qlabel">性別 <span class="req">必須</span></span><div class="choice-row" id="sexRow"></div></div>
+            <div class="field"><label for="fTel">電話番号（日中つながる番号） <span class="req">必須</span></label><input type="tel" id="fTel" placeholder="090-0000-0000"></div>
+            <div class="field"><label for="fMail">メールアドレス <span class="req">必須</span></label><input type="email" id="fMail" placeholder="hanako@example.com"></div>
+            <div class="field"><label for="fJikan">ご連絡しやすい時間帯 <span class="req">必須</span></label>
+              <select id="fJikan"><option value="">お選びください</option><option>午前</option><option>午後</option><option>夕方以降</option><option>いつでも</option></select>
+            </div>
+            <div class="field"><label for="fRireki">当院での健診の受診歴 <span class="req">必須</span></label>
+              <select id="fRireki"><option value="">お選びください</option><option>初めて</option><option>2回目以降</option></select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>5. ご希望の日</legend>
+          <p class="hint">濃く表示されている日から、最大 3 つまでお選びください。上から第 1〜第 3 希望になります。</p>
+          <div class="split">
+            <div>
+              <div id="calArea"></div>
+              <div id="slotArea"></div>
+              <ul class="wishlist" id="wishList"></ul>
+              <p class="wishempty" id="wishEmpty">まだ選ばれていません。</p>
+            </div>
+            <aside class="sidecard">
+              <h4>受付可能日について</h4>
+              <p class="updated" id="availUpdated">—</p>
+              <p style="font-size:12.5px;margin:0;color:var(--muted)">濃い日は<strong>お申し込みを受け付ける日</strong>であって、予約が確定できる日ではありません。日程は折り返しのお電話で確定します。</p>
+              <div class="legend">
+                <span><i style="background:var(--accent-weak)"></i>申込可</span>
+                <span><i style="background:var(--accent)"></i>選択中</span>
+              </div>
+              <p style="font-size:11.5px;margin:10px 0 0;color:var(--muted)">04 タブで受付可能日を編集すると、ここに反映されます。</p>
+            </aside>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>6. 安全のための確認</legend>
+          <p class="hint">当日の検査を安全に行うための確認です。<strong>病名やお薬の名前は入力しないでください。</strong>詳しいことはお電話でうかがいます。</p>
+          <div id="safetyList"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>7. ご質問・ご要望（任意）</legend>
+          <div class="field"><label for="fBiko"><span class="opt">任意</span> 150 字以内</label><textarea id="fBiko" rows="3" maxlength="150" placeholder="例：鎮静剤を使った場合、当日の車の運転はできますか。"></textarea></div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">入力内容を確認する</button>
+          <button type="button" class="btn ghost" id="resetBtn">入力をクリア</button>
+          <span class="caveat">押しても送信されません（試作）</span>
+        </div>
+      </form>
+
+      <div class="summary" id="confirmBox" hidden>
+        <h4 id="confirmTitle">この内容でお申し込みします</h4>
+        <dl id="confirmList"></dl>
+        <p id="confirmFoot" style="margin:12px 0 0;font-size:12.5px;color:var(--accent-ink)"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3 ==================== -->
+<div id="panel-ledger" role="tabpanel" aria-labelledby="tab-ledger" hidden>
+  <div class="prose">
+    <h2 style="margin-top:6px"><span class="sec">03</span>台帳試作</h2>
+    <p>スプレッドシート「予約依頼台帳」の見え方です。<strong>受付担当が更新する運用列 A〜F を左端に置く</strong>のが要点で、右へスクロールしないと仕事にならない並びにすると使われなくなります。</p>
+    <div class="note">
+      <span class="note-label">条件付き書式</span>
+      <p>C 列が「未対応」かつ B 列から <strong>24 時間経過</strong> → 行が赤。安全確認列が「該当あり」「わからない」 → セルが黄。どちらも、電話の前に気づくべきことを色で示しています。データはすべて架空です。</p>
+    </div>
+  </div>
+
+  <div class="mock">
+    <div class="mock-bar"><span class="dot"></span><span class="path">予約依頼台帳 &middot; 受付中シート</span><span style="margin-left:auto">共有：受付 8 名＋情シス（個別に追加）</span></div>
+    <div class="mock-body">
+      <div class="kpis" id="ledgerKpis"></div>
+      <div class="scroller">
+        <table class="ledger">
+          <thead>
+            <tr>
+              <th class="ops"><span class="col">A</span>受付番号</th>
+              <th class="ops"><span class="col">B</span>受付日時</th>
+              <th class="ops"><span class="col">C</span>ステータス</th>
+              <th class="ops"><span class="col">D</span>対応担当</th>
+              <th class="ops"><span class="col">E</span>確定日時</th>
+              <th class="ops"><span class="col">F</span>確定コース</th>
+              <th><span class="col">G</span>氏名</th>
+              <th><span class="col">K</span>電話番号</th>
+              <th><span class="col">M</span>連絡希望</th>
+              <th><span class="col">O/P</span>第1希望</th>
+              <th><span class="col">U</span>希望コース</th>
+              <th><span class="col">V/W</span>胃部検査</th>
+              <th><span class="col">Y</span>妊娠等</th>
+              <th><span class="col">AB</span>血液サラサラ</th>
+              <th><span class="col">AC</span>車いす</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:12px">ステータスと対応担当は、この表の中で変更できます（試作のため保存されません）。「未対応」以外にすると赤が消えることを確認してください。</p>
+
+      <div class="prose" style="margin-top:26px">
+        <h3>列の設計で決めてあること</h3>
+        <ul>
+          <li><strong>運用列（A〜F）は受付担当が更新し、申込内容列（G 以降）は GAS が書く。</strong>手で編集しない列はシート保護をかける</li>
+          <li>分岐で表示されなかった項目は<strong>空欄</strong>。空文字と「未表示」を区別するため、GAS 側ではキー自体を出力しない</li>
+          <li>区分ごとの追加項目（保険証記号番号など）は列を増やさず <code>AD</code> 列に JSON 文字列で持つ</li>
+          <li>シートは「受付中」と「完了済（年度別）」に分け、確定・キャンセルから 3 か月経過した行を年次で移す</li>
+          <li>列順は<strong>既存の予約台帳に合わせる</strong>。転記が機械的にできる形にしておくと、二重入力の負担が減る</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 4 ==================== -->
+<div id="panel-avail" role="tabpanel" aria-labelledby="tab-avail" hidden>
+  <div class="prose">
+    <h2 style="margin-top:6px"><span class="sec">04</span>受付可能日試作</h2>
+    <p>スプレッドシート「受付可能日」シートと、そこから生成される JSON です。<strong>ここを編集すると 02 タブのカレンダーが変わります。</strong>受付担当 8 名が毎朝ここを更新する、という運用が成立するかどうかを確かめてください。</p>
+  </div>
+
+  <div class="mock">
+    <div class="mock-bar"><span class="dot"></span><span class="path">予約依頼台帳 &middot; 受付可能日シート</span><span style="margin-left:auto">編集：受付 8 名</span></div>
+    <div class="mock-body">
+      <div id="availAlarm"></div>
+
+      <div class="actions" style="margin-top:0;margin-bottom:14px">
+        <button type="button" class="btn ghost small" id="clearAll">すべて外す（枯渇時の表示を確認）</button>
+        <button type="button" class="btn ghost small" id="fillAll">標準の枠を入れ直す</button>
+        <button type="button" class="btn ghost small" id="ageIt">最終更新を 4 日前にする</button>
+      </div>
+
+      <div class="avail-grid">
+        <div class="scroller" style="margin-top:0">
+          <table class="avail">
+            <thead><tr><th><span class="col">A</span>日付</th><th class="num">曜日</th><th class="num">B 午前</th><th class="num">C 午後</th><th><span class="col">E</span>メモ（院内用）</th></tr></thead>
+            <tbody id="availBody"></tbody>
+          </table>
+        </div>
+        <div>
+          <h3 style="margin-top:0">GAS が 10 分ごとに生成する JSON</h3>
+          <p style="font-size:12.5px;color:var(--muted);margin:0 0 10px">日付と時間帯だけ。個人情報は含みません。◯が付いていない日はキーごと出力しません。</p>
+          <pre class="jsonbox" id="availJson"></pre>
+          <div class="prose" style="margin-top:20px">
+            <h3>通知の条件</h3>
+            <ul style="font-size:13.5px">
+              <li>選択可能日が <strong>7 日分を下回った</strong>とき</li>
+              <li><strong>3 日以上更新がない</strong>とき</li>
+            </ul>
+            <p style="font-size:13.5px;color:var(--muted);margin:0">どちらも受付担当と情シスへメール通知します。上のボタンで、両方の状態を再現できます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- tabs ---------- */
+  var TABS = [
+    { btn: "tab-doc", panel: "panel-doc" },
+    { btn: "tab-form", panel: "panel-form" },
+    { btn: "tab-ledger", panel: "panel-ledger" },
+    { btn: "tab-avail", panel: "panel-avail" }
+  ];
+  function showTab(id) {
+    TABS.forEach(function (t) {
+      var on = t.btn === id;
+      document.getElementById(t.btn).setAttribute("aria-selected", on ? "true" : "false");
+      document.getElementById(t.panel).hidden = !on;
+    });
+    try { localStorage.setItem("kenshin.tab", id); } catch (e) {}
+    if (id === "tab-form") renderCalendar();
+    if (id === "tab-avail") renderAvail();
+  }
+  TABS.forEach(function (t) {
+    document.getElementById(t.btn).addEventListener("click", function () {
+      showTab(t.btn); window.scrollTo({ top: 0 });
+    });
+  });
+
+  /* ---------- shared helpers ---------- */
+  var WD = ["日", "月", "火", "水", "木", "金", "土"];
+  function iso(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function fmtDT(d) {
+    return iso(d) + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function mk(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  /* ---------- availability data ---------- */
+  // AVAIL[iso] = ["午前","午後"]
+  var AVAIL = {};
+  var availUpdatedAt = new Date();
+  var availMemo = {};
+
+  function defaultSlots(date) {
+    var w = date.getDay();
+    if (w === 0) return [];                 // 日曜は休み
+    if (w === 6) return ["午前"];           // 土曜は午前のみ
+    var s = ["午前"];
+    if (w === 2 || w === 4 || w === 5) s.push("午後");
+    return s;
+  }
+  function availDates() {
+    var out = [], base = new Date(); base.setHours(0, 0, 0, 0);
+    for (var i = 3; i <= 31; i++) {
+      var d = new Date(base); d.setDate(d.getDate() + i);
+      out.push(d);
+    }
+    return out;
+  }
+  function seedAvail() {
+    AVAIL = {};
+    availDates().forEach(function (d, i) {
+      var s = defaultSlots(d);
+      // 現実味のため、いくつかの日は埋まっている想定で落とす
+      if (i % 7 === 3) s = [];
+      else if (i % 5 === 1) s = s.slice(0, 1);
+      if (s.length) AVAIL[iso(d)] = s;
+    });
+    availMemo[iso(availDates()[4])] = "予備日";
+    availUpdatedAt = new Date();
+  }
+  seedAvail();
+
+  function openDayCount() { return Object.keys(AVAIL).length; }
+  function staleDays() {
+    return Math.floor((Date.now() - availUpdatedAt.getTime()) / 86400000);
+  }
+
+  /* ---------- TAB 2 : form definitions ---------- */
+  var KUBUN = [
+    { v: "個人（全額自己負担）", l: "個人でのお申し込み", s: "費用は全額ご自身の負担になります", extra: "kojin" },
+    { v: "協会けんぽ 生活習慣病予防検診", l: "協会けんぽの生活習慣病予防検診", s: "保険証に「全国健康保険協会」と書かれている方", extra: "kyokai" },
+    { v: "健康保険組合の補助を利用", l: "健康保険組合の補助を使う", s: "", extra: "kenpo" },
+    { v: "自治体の特定健診・がん検診", l: "市や町の特定健診・がん検診", s: "受診券が届いている方", extra: "jichitai" },
+    { v: "わからない", l: "わからない", s: "お電話で一緒に確認します", extra: null }
+  ];
+
+  var COURSES = [
+    { v: "定期健康診断（Aコース）", s: "35歳・40歳以上の方向け", igi: true },
+    { v: "定期健康診断（Bコース）", s: "", igi: false },
+    { v: "定期健康診断（Cコース）", s: "", igi: false },
+    { v: "生活習慣病予防検診", s: "", igi: true },
+    { v: "半日人間ドック", s: "所要時間 約2時間", igi: true },
+    { v: "スタンダード人間ドック（Aコース）", s: "所要時間 約3時間", igi: true },
+    { v: "プレミアム人間ドック（Bコース）", s: "頭部CT検査つき", igi: true },
+    { v: "エグゼクティブ人間ドック（Cコース・1泊2日）", s: "1泊2日／脳ドック・心臓超音波つき", igi: true },
+    { v: "脳ドック", s: "", igi: false },
+    { v: "呼吸器ドック", s: "呼吸器内科医が担当します", igi: false, isNew: true },
+    { v: "レディースドック", s: "人間ドックに婦人科の検査を組み合わせたコース", igi: true },
+    { v: "決めていない・相談したい", s: "お電話で一緒に決めます", igi: false }
+  ];
+
+  var OPTIONS = [
+    { v: "子宮頸がん検査", fujinka: true },
+    { v: "乳がん検査（マンモグラフィ）", fujinka: true },
+    { v: "乳房超音波", fujinka: true },
+    { v: "腫瘍マーカー" },
+    { v: "頭部CT・MRI", ct: true },
+    { v: "心臓超音波" },
+    { v: "骨密度" },
+    { v: "ピロリ菌検査" }
+  ];
+
+  var SAFETY = [
+    { k: "ninshin", q: "妊娠中・妊娠の可能性・授乳中", cond: "female", opts: ["該当あり", "該当なし", "わからない"] },
+    { k: "kinzoku", q: "ペースメーカー・体内の金属・刺青", cond: "ct", opts: ["該当あり", "該当なし", "わからない"] },
+    { k: "zoei", q: "造影剤でアレルギーが出たことがある", cond: "ct", opts: ["該当あり", "該当なし", "わからない"] },
+    { k: "kessen", q: "血をサラサラにするお薬を飲んでいる", cond: "endo", opts: ["該当あり", "該当なし", "わからない"] },
+    { k: "kaijo", q: "車いすのご利用・介助が必要", cond: "always", opts: ["必要", "不要", "わからない"] },
+    { k: "netsu", q: "受診日から 2 週間以内に発熱・咳などの症状", cond: "always", opts: ["該当あり", "該当なし", "わからない"], isNew: true }
+  ];
+
+  var state = { kubun: "", course: "", igi: "", chinsei: "", sex: "", options: [], safety: {}, wishes: [], calMonth: null, pendingDate: null };
+
+  function radioRow(container, name, items, onPick, current) {
+    container.innerHTML = "";
+    items.forEach(function (it, i) {
+      var label = mk("label", "choice" + (current === it.v ? " sel" : ""));
+      var input = document.createElement("input");
+      input.type = "radio"; input.name = name; input.value = it.v;
+      input.id = name + "_" + i;
+      input.checked = current === it.v;
+      input.addEventListener("change", function () { onPick(it.v); });
+      var cl = mk("span", "cl");
+      var t = mk("span", null, it.l || it.v);
+      if (it.isNew) { var tag = mk("span", "newtag", "反映"); tag.style.marginLeft = "6px"; t.appendChild(tag); }
+      cl.appendChild(t);
+      if (it.s) cl.appendChild(mk("span", "cs", it.s));
+      label.appendChild(input); label.appendChild(cl);
+      container.appendChild(label);
+    });
+  }
+
+  // 区分
+  radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, function (v) {
+    state.kubun = v;
+    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, arguments.callee, v);
+    renderKubunExtra();
+  }, "");
+
+  function renderKubunExtra() {
+    var box = document.getElementById("kubunExtra");
+    box.innerHTML = "";
+    var k = KUBUN.filter(function (x) { return x.v === state.kubun; })[0];
+    if (!k || !k.extra) return;
+    var cond = mk("div", "cond");
+    var head = mk("p", "condhead", "この区分で必要な項目");
+    cond.appendChild(head);
+    var grid = mk("div", "field-grid");
+    function addField(id, label, type, options) {
+      var f = mk("div", "field");
+      var lb = mk("label", null, label);
+      lb.htmlFor = id;
+      lb.appendChild(mk("span", "req", "必須"));
+      f.appendChild(lb);
+      if (type === "select") {
+        var sel = document.createElement("select"); sel.id = id;
+        sel.appendChild(mk("option", null, "お選びください"));
+        options.forEach(function (o) { sel.appendChild(mk("option", null, o)); });
+        f.appendChild(sel);
+      } else {
+        var inp = document.createElement("input"); inp.type = "text"; inp.id = id; inp.maxLength = 40;
+        f.appendChild(inp);
+      }
+      grid.appendChild(f);
+    }
+    if (k.extra === "kojin") addField("exShiharai", "お支払い方法", "select", ["現金", "クレジットカード", "未定"]);
+    if (k.extra === "kyokai") { addField("exHokensho", "保険証の記号・番号", "text"); addField("exFuyou", "ご家族（被扶養者）の同時受診", "select", ["あり", "なし"]); }
+    if (k.extra === "kenpo") { addField("exKenpo", "健康保険組合名", "text"); addField("exHojoken", "補助券・受診券", "select", ["あり", "なし", "不明"]); }
+    if (k.extra === "jichitai") { addField("exShicho", "お住まいの市町名", "text"); addField("exJushinken", "受診券", "select", ["あり", "なし", "不明"]); }
+    cond.appendChild(grid);
+    box.appendChild(cond);
+  }
+
+  // コース
+  function pickCourse(v) {
+    state.course = v;
+    radioRow(document.getElementById("courseRow"), "course", COURSES, pickCourse, v);
+    var c = COURSES.filter(function (x) { return x.v === v; })[0];
+    var hasIgi = !!(c && c.igi);
+    document.getElementById("igiBlock").hidden = !hasIgi;
+    if (!hasIgi) { state.igi = ""; state.chinsei = ""; }
+    renderIgi();
+    renderSafety();
+  }
+  radioRow(document.getElementById("courseRow"), "course", COURSES, pickCourse, "");
+
+  function renderIgi() {
+    radioRow(document.getElementById("igiRow"), "igi",
+      [{ v: "胃カメラ" }, { v: "バリウム" }, { v: "希望しない" }],
+      function (v) { state.igi = v; renderIgi(); renderSafety(); }, state.igi);
+    var isEndo = state.igi === "胃カメラ";
+    document.getElementById("chinseiBlock").hidden = !isEndo;
+    if (!isEndo) state.chinsei = "";
+    radioRow(document.getElementById("chinseiRow"), "chinsei",
+      [{ v: "希望する" }, { v: "希望しない" }, { v: "相談したい" }],
+      function (v) { state.chinsei = v; renderIgi(); }, state.chinsei);
+    document.getElementById("chinseiWarn").hidden = state.chinsei !== "希望する";
+  }
+
+  // 追加検査
+  (function renderOptions() {
+    var row = document.getElementById("optionRow");
+    OPTIONS.forEach(function (o, i) {
+      var label = mk("label", "choice");
+      var input = document.createElement("input");
+      input.type = "checkbox"; input.id = "opt_" + i; input.value = o.v;
+      input.addEventListener("change", function () {
+        state.options = OPTIONS.filter(function (x, j) {
+          return document.getElementById("opt_" + j).checked;
+        }).map(function (x) { return x.v; });
+        label.classList.toggle("sel", input.checked);
+        var anyF = OPTIONS.some(function (x, j) { return x.fujinka && document.getElementById("opt_" + j).checked; });
+        document.getElementById("fujinkaWarn").hidden = !anyF;
+        renderSafety();
+      });
+      label.appendChild(input);
+      label.appendChild(mk("span", "cl", o.v));
+      row.appendChild(label);
+    });
+  })();
+
+  // 性別
+  radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], function (v) {
+    state.sex = v;
+    radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], arguments.callee, v);
+    renderSafety();
+  }, "");
+
+  // 安全確認
+  function safetyVisible(item) {
+    if (item.cond === "always") return true;
+    if (item.cond === "female") return state.sex === "女性";
+    if (item.cond === "ct") return state.options.indexOf("頭部CT・MRI") !== -1;
+    if (item.cond === "endo") return state.igi === "胃カメラ";
+    return false;
+  }
+  function renderSafety() {
+    var box = document.getElementById("safetyList");
+    box.innerHTML = "";
+    SAFETY.forEach(function (item) {
+      if (!safetyVisible(item)) { delete state.safety[item.k]; return; }
+      var q = mk("div", "qblock");
+      var lab = mk("span", "qlabel");
+      lab.appendChild(document.createTextNode(item.q));
+      lab.appendChild(mk("span", "req", "必須"));
+      if (item.isNew) lab.appendChild(mk("span", "newtag", "反映"));
+      q.appendChild(lab);
+      var row = mk("div", "choice-row");
+      radioRow(row, "sf_" + item.k, item.opts.map(function (o) { return { v: o }; }), function (v) {
+        state.safety[item.k] = v; renderSafety();
+      }, state.safety[item.k] || "");
+      q.appendChild(row);
+      box.appendChild(q);
+    });
+  }
+  renderSafety();
+
+  /* ---------- calendar ---------- */
+  function renderCalendar() {
+    var area = document.getElementById("calArea");
+    area.innerHTML = "";
+    document.getElementById("availUpdated").textContent = "受付可能日 最終更新：" + fmtDT(availUpdatedAt);
+
+    if (!openDayCount()) {
+      var stop = mk("div", "calstop");
+      stop.appendChild(document.createTextNode("ただいまインターネットでのお申し込みを停止しています。お手数ですが、お電話でお申し込みください。"));
+      stop.appendChild(mk("strong", null, "095-813-5820（健康管理センター 直通）"));
+      area.appendChild(stop);
+      document.getElementById("slotArea").innerHTML = "";
+      return;
+    }
+
+    var now = new Date();
+    var months = [new Date(now.getFullYear(), now.getMonth(), 1), new Date(now.getFullYear(), now.getMonth() + 1, 1)];
+    months.forEach(function (mstart) {
+      var y = mstart.getFullYear(), m = mstart.getMonth();
+      var hasAny = Object.keys(AVAIL).some(function (k) {
+        var p = k.split("-");
+        return Number(p[0]) === y && Number(p[1]) - 1 === m;
+      });
+      if (!hasAny) return;
+
+      var wrap = mk("div", "cal");
+      var title = mk("div", "cal-title");
+      title.appendChild(mk("span", null, y + "年 " + (m + 1) + "月"));
+      wrap.appendChild(title);
+
+      var grid = mk("div", "cal-grid");
+      WD.forEach(function (w, i) {
+        grid.appendChild(mk("div", "dow" + (i === 0 ? " sun" : i === 6 ? " sat" : ""), w));
+      });
+      var lead = new Date(y, m, 1).getDay();
+      for (var i = 0; i < lead; i++) grid.appendChild(mk("div", "daycell blank", ""));
+
+      var total = new Date(y, m + 1, 0).getDate();
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      for (var d = 1; d <= total; d++) {
+        var date = new Date(y, m, d);
+        var key = iso(date);
+        var slots = AVAIL[key];
+        var isChosen = state.wishes.some(function (w) { return w.date === key; });
+        var cell, cls = "daycell";
+        if (slots && slots.length) {
+          cell = document.createElement("button");
+          cell.type = "button";
+          cls += isChosen ? " open chosen" : " open";
+          cell.setAttribute("aria-label", (m + 1) + "月" + d + "日（" + WD[date.getDay()] + "）" + slots.join("・") + " 申込可");
+          (function (k) {
+            cell.addEventListener("click", function () { state.pendingDate = k; renderSlotPicker(); });
+          })(key);
+        } else {
+          cell = mk("div", "", "");
+          cell.setAttribute("aria-hidden", "true");
+        }
+        if (key === iso(today)) cls += " today";
+        cell.className = cls;
+        cell.textContent = String(d);
+        grid.appendChild(cell);
+      }
+      wrap.appendChild(grid);
+      area.appendChild(wrap);
+    });
+    renderSlotPicker();
+    renderWishes();
+  }
+
+  function renderSlotPicker() {
+    var area = document.getElementById("slotArea");
+    area.innerHTML = "";
+    if (!state.pendingDate || !AVAIL[state.pendingDate]) return;
+    var d = state.pendingDate.split("-");
+    var date = new Date(Number(d[0]), Number(d[1]) - 1, Number(d[2]));
+    var cond = mk("div", "cond");
+    cond.appendChild(mk("p", "condhead", (date.getMonth() + 1) + "月" + date.getDate() + "日（" + WD[date.getDay()] + "）のご希望"));
+    var row = mk("div", "slotpick");
+    AVAIL[state.pendingDate].forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn small ghost"; b.textContent = s;
+      b.addEventListener("click", function () { addWish(state.pendingDate, s); });
+      row.appendChild(b);
+    });
+    cond.appendChild(row);
+    area.appendChild(cond);
+  }
+
+  function addWish(date, slot) {
+    if (state.wishes.length >= 3) {
+      alertLine("ご希望は 3 つまでです。変更する場合は、選んだものを外してからお選びください。");
+      return;
+    }
+    if (state.wishes.some(function (w) { return w.date === date && w.slot === slot; })) {
+      alertLine("同じ日時はすでに選ばれています。");
+      return;
+    }
+    state.wishes.push({ date: date, slot: slot });
+    state.pendingDate = null;
+    renderCalendar();
+  }
+  function alertLine(msg) {
+    var area = document.getElementById("slotArea");
+    area.innerHTML = "";
+    var w = mk("div", "cond warnish");
+    w.appendChild(mk("p", "condhead", "ご確認ください"));
+    w.appendChild(mk("p", null, msg)).style.cssText = "margin:0;font-size:13.5px";
+    area.appendChild(w);
+  }
+
+  function renderWishes() {
+    var ul = document.getElementById("wishList");
+    ul.innerHTML = "";
+    document.getElementById("wishEmpty").hidden = state.wishes.length > 0;
+    state.wishes.forEach(function (w, i) {
+      var p = w.date.split("-");
+      var date = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+      var li = document.createElement("li");
+      li.appendChild(mk("span", "rank", "第" + (i + 1) + "希望"));
+      li.appendChild(mk("span", "d", (date.getMonth() + 1) + "月" + date.getDate() + "日（" + WD[date.getDay()] + "）" + w.slot));
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn ghost small"; b.textContent = "外す";
+      b.addEventListener("click", function () { state.wishes.splice(i, 1); renderCalendar(); });
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+  }
+  renderCalendar();
+
+  /* ---------- font scale ---------- */
+  [["fsS", "13.5px"], ["fsM", "15px"], ["fsL", "17.5px"]].forEach(function (pair) {
+    document.getElementById(pair[0]).addEventListener("click", function () {
+      document.documentElement.style.setProperty("--fs", pair[1]);
+      ["fsS", "fsM", "fsL"].forEach(function (id) {
+        document.getElementById(id).setAttribute("aria-pressed", id === pair[0] ? "true" : "false");
+      });
+    });
+  });
+
+  /* ---------- submit ---------- */
+  function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
+
+  document.getElementById("applyForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var miss = [];
+    if (!state.kubun) miss.push("お申し込みの区分");
+    if (!state.course) miss.push("ご希望のコース");
+    var c = COURSES.filter(function (x) { return x.v === state.course; })[0];
+    if (c && c.igi && !state.igi) miss.push("胃の検査");
+    if (state.igi === "胃カメラ" && !state.chinsei) miss.push("鎮静剤のご希望");
+    if (!val("fName")) miss.push("お名前");
+    if (!val("fKana")) miss.push("フリガナ");
+    else if (!/^[ァ-ヶー\s　]+$/.test(val("fKana"))) miss.push("フリガナ（カタカナでご入力ください）");
+    if (!val("fBirth")) miss.push("生年月日");
+    if (!state.sex) miss.push("性別");
+    var tel = val("fTel");
+    if (!tel) miss.push("電話番号");
+    else if (!/^[0-9-]+$/.test(tel)) miss.push("電話番号（数字とハイフンでご入力ください）");
+    var mail = val("fMail");
+    if (!mail) miss.push("メールアドレス");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) miss.push("メールアドレス（形式をご確認ください）");
+    if (!val("fJikan")) miss.push("ご連絡しやすい時間帯");
+    if (!val("fRireki")) miss.push("受診歴");
+    if (!state.wishes.length) miss.push("ご希望の日（1 つ以上）");
+    SAFETY.forEach(function (it) {
+      if (safetyVisible(it) && !state.safety[it.k]) miss.push("安全確認：" + it.q);
+    });
+
+    var box = document.getElementById("confirmBox");
+    var list = document.getElementById("confirmList");
+    var title = document.getElementById("confirmTitle");
+    var foot = document.getElementById("confirmFoot");
+    list.innerHTML = "";
+
+    if (miss.length) {
+      box.hidden = false; box.classList.add("bad");
+      title.textContent = "次の項目をご確認ください";
+      var dt = mk("dt", null, "未入力");
+      var dd = mk("dd", null, miss.join(" / "));
+      list.appendChild(dt); list.appendChild(dd);
+      foot.textContent = "実際の画面では、該当する項目のところに赤字でエラーが出ます。";
+      foot.style.color = "var(--danger)";
+      box.scrollIntoView({ block: "nearest" });
+      return;
+    }
+
+    box.hidden = false; box.classList.remove("bad");
+    title.textContent = "この内容でお申し込みします";
+    foot.style.color = "var(--accent-ink)";
+    foot.textContent = "試作のため送信は行われません。実際はこの下に「送信する」ボタンが並び、送信時にサーバ側で受付可能日を再検証します。";
+
+    var rows = [];
+    rows.push(["お申し込みの区分", state.kubun]);
+    rows.push(["ご希望のコース", state.course]);
+    if (state.igi) rows.push(["胃の検査", state.igi + (state.chinsei ? "（鎮静剤 " + state.chinsei + "）" : "")]);
+    rows.push(["追加の検査", state.options.length ? state.options.join("、") : "なし"]);
+    rows.push(["お名前", val("fName") + "（" + val("fKana") + "）"]);
+    rows.push(["生年月日・性別", val("fBirth") + " / " + state.sex]);
+    rows.push(["電話番号", val("fTel")]);
+    rows.push(["メールアドレス", val("fMail")]);
+    rows.push(["ご連絡しやすい時間帯", val("fJikan")]);
+    rows.push(["受診歴", val("fRireki")]);
+    state.wishes.forEach(function (w, i) {
+      var p = w.date.split("-");
+      var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+      rows.push(["第" + (i + 1) + "希望", (d.getMonth() + 1) + "月" + d.getDate() + "日（" + WD[d.getDay()] + "）" + w.slot]);
+    });
+    SAFETY.forEach(function (it) {
+      if (safetyVisible(it)) rows.push(["安全確認：" + it.q, state.safety[it.k]]);
+    });
+    if (val("fBiko")) rows.push(["ご質問・ご要望", val("fBiko")]);
+
+    rows.forEach(function (r) {
+      list.appendChild(mk("dt", null, r[0]));
+      list.appendChild(mk("dd", null, r[1]));
+    });
+    box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    document.getElementById("applyForm").reset();
+    state.kubun = ""; state.course = ""; state.igi = ""; state.chinsei = "";
+    state.sex = ""; state.options = []; state.safety = {}; state.wishes = []; state.pendingDate = null;
+    radioRow(document.getElementById("kubunRow"), "kubun", KUBUN, function (v) {
+      state.kubun = v; renderKubunExtra();
+    }, "");
+    document.getElementById("kubunExtra").innerHTML = "";
+    pickCourse("");
+    document.getElementById("igiBlock").hidden = true;
+    document.getElementById("fujinkaWarn").hidden = true;
+    OPTIONS.forEach(function (o, i) {
+      var el = document.getElementById("opt_" + i);
+      el.checked = false; el.parentNode.classList.remove("sel");
+    });
+    radioRow(document.getElementById("sexRow"), "sex", [{ v: "男性" }, { v: "女性" }], function (v) {
+      state.sex = v; renderSafety();
+    }, "");
+    renderSafety(); renderCalendar();
+    document.getElementById("confirmBox").hidden = true;
+  });
+
+  /* ---------- TAB 3 : ledger ---------- */
+  var STATUS = {
+    "未対応": "s-new", "連絡中": "s-call", "予約確定": "s-fixed", "キャンセル": "s-cancel", "不成立": "s-lost"
+  };
+  function hoursAgo(h) { var d = new Date(); d.setHours(d.getHours() - h); return d; }
+
+  var LEDGER = [
+    { no: "20261201-0001", at: hoursAgo(38), st: "未対応", by: "", fixed: "", fcourse: "",
+      name: "長崎 花子", tel: "090-0000-0001", jikan: "夕方以降", d1: "12-08 午前",
+      course: "半日人間ドック", igi: "胃カメラ／鎮静剤 希望する",
+      ninshin: "該当なし", kessen: "わからない", kaijo: "不要" },
+    { no: "20261201-0002", at: hoursAgo(30), st: "未対応", by: "", fixed: "", fcourse: "",
+      name: "諫早 健一", tel: "090-0000-0002", jikan: "午前", d1: "12-09 午前",
+      course: "脳ドック", igi: "",
+      ninshin: "", kessen: "", kaijo: "不要" },
+    { no: "20261202-0001", at: hoursAgo(20), st: "連絡中", by: "山田", fixed: "", fcourse: "",
+      name: "大村 さつき", tel: "080-0000-0003", jikan: "いつでも", d1: "12-11 午後",
+      course: "レディースドック", igi: "バリウム",
+      ninshin: "わからない", kessen: "", kaijo: "不要" },
+    { no: "20261202-0002", at: hoursAgo(14), st: "予約確定", by: "山田", fixed: "12-15 10:20", fcourse: "生活習慣病予防検診",
+      name: "時津 学", tel: "095-000-0004", jikan: "午後", d1: "12-16 午前",
+      course: "生活習慣病予防検診", igi: "バリウム",
+      ninshin: "", kessen: "", kaijo: "不要" },
+    { no: "20261202-0003", at: hoursAgo(8), st: "未対応", by: "", fixed: "", fcourse: "",
+      name: "長与 みどり", tel: "080-0000-0005", jikan: "午前", d1: "12-18 午前",
+      course: "プレミアム人間ドック（Bコース）", igi: "胃カメラ／鎮静剤 相談したい",
+      ninshin: "該当あり", kessen: "該当なし", kaijo: "不要" },
+    { no: "20261203-0001", at: hoursAgo(3), st: "未対応", by: "", fixed: "", fcourse: "",
+      name: "西彼 太郎", tel: "090-0000-0006", jikan: "夕方以降", d1: "12-19 午前",
+      course: "決めていない・相談したい", igi: "",
+      ninshin: "", kessen: "", kaijo: "必要" },
+    { no: "20261130-0004", at: hoursAgo(72), st: "不成立", by: "鈴木", fixed: "", fcourse: "",
+      name: "佐世保 陽", tel: "090-0000-0007", jikan: "午後", d1: "12-05 午前",
+      course: "半日人間ドック", igi: "希望しない",
+      ninshin: "該当なし", kessen: "", kaijo: "不要" }
+  ];
+
+  function isFlag(v) { return v === "該当あり" || v === "わからない" || v === "必要"; }
+
+  function renderLedger() {
+    var body = document.getElementById("ledgerBody");
+    body.innerHTML = "";
+    LEDGER.forEach(function (r, idx) {
+      var tr = document.createElement("tr");
+      var stale = r.st === "未対応" && (Date.now() - r.at.getTime()) > 86400000;
+      if (stale) tr.className = "stale";
+
+      function td(text, cls) { var e = mk("td", cls || "", text); tr.appendChild(e); return e; }
+      td(r.no, "num ops");
+      td(fmtDT(r.at), "num ops");
+
+      var tdSt = mk("td", "ops");
+      var sel = document.createElement("select");
+      sel.id = "ledst_" + idx;
+      sel.style.cssText = "font-size:12px;padding:3px 5px";
+      Object.keys(STATUS).forEach(function (s) {
+        var o = mk("option", null, s); o.selected = s === r.st; sel.appendChild(o);
+      });
+      sel.addEventListener("change", function () {
+        r.st = sel.value;
+        if (r.st !== "未対応" && !r.by) r.by = "山田";
+        renderLedger(); renderLedgerKpis();
+      });
+      tdSt.appendChild(sel);
+      tr.appendChild(tdSt);
+
+      var tdBy = mk("td", "ops");
+      var selBy = document.createElement("select");
+      selBy.id = "ledby_" + idx;
+      selBy.style.cssText = "font-size:12px;padding:3px 5px";
+      ["", "山田", "鈴木", "田中", "中村"].forEach(function (n) {
+        var o = mk("option", null, n || "—"); o.value = n; o.selected = n === r.by; selBy.appendChild(o);
+      });
+      selBy.addEventListener("change", function () { r.by = selBy.value; });
+      tdBy.appendChild(selBy);
+      tr.appendChild(tdBy);
+
+      td(r.fixed || "—", "num ops");
+      td(r.fcourse || "—", "ops");
+      td(r.name);
+      td(r.tel, "num");
+      td(r.jikan);
+      td(r.d1, "num");
+      td(r.course);
+      td(r.igi || "—");
+      td(r.ninshin || "—", isFlag(r.ninshin) ? "flag" : "");
+      td(r.kessen || "—", isFlag(r.kessen) ? "flag" : "");
+      td(r.kaijo || "—", isFlag(r.kaijo) ? "flag" : "");
+
+      body.appendChild(tr);
+    });
+  }
+
+  function renderLedgerKpis() {
+    var box = document.getElementById("ledgerKpis");
+    var pending = LEDGER.filter(function (r) { return r.st === "未対応"; }).length;
+    var stale = LEDGER.filter(function (r) { return r.st === "未対応" && (Date.now() - r.at.getTime()) > 86400000; }).length;
+    var flags = LEDGER.filter(function (r) { return isFlag(r.ninshin) || isFlag(r.kessen) || isFlag(r.kaijo); }).length;
+    box.innerHTML = "";
+    [{ n: pending, l: "未対応", c: "" },
+     { n: stale, l: "うち 24 時間超過", c: stale ? "alert" : "" },
+     { n: flags, l: "安全確認に要確認あり", c: flags ? "warn" : "" }
+    ].forEach(function (k) {
+      var d = mk("div", "kpi" + (k.c ? " " + k.c : ""));
+      d.appendChild(mk("b", null, String(k.n)));
+      d.appendChild(mk("span", null, k.l));
+      box.appendChild(d);
+    });
+  }
+  renderLedger(); renderLedgerKpis();
+
+  /* ---------- TAB 4 : availability editor ---------- */
+  function renderAvail() {
+    var body = document.getElementById("availBody");
+    body.innerHTML = "";
+    availDates().forEach(function (d) {
+      var key = iso(d);
+      var slots = AVAIL[key] || [];
+      var tr = document.createElement("tr");
+      if (d.getDay() === 0 || d.getDay() === 6) tr.className = "weekend";
+      tr.appendChild(mk("td", "num", key));
+      tr.appendChild(mk("td", "num", WD[d.getDay()]));
+
+      ["午前", "午後"].forEach(function (s) {
+        var td = mk("td", "mark");
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "marktoggle";
+        b.id = "mk_" + key + "_" + (s === "午前" ? "am" : "pm");
+        var on = slots.indexOf(s) !== -1;
+        b.dataset.on = on ? "1" : "0";
+        b.textContent = on ? "◯" : "×";
+        b.setAttribute("aria-label", key + " " + s + " " + (on ? "受付可" : "受付不可"));
+        b.addEventListener("click", function () {
+          var cur = AVAIL[key] ? AVAIL[key].slice() : [];
+          if (cur.indexOf(s) !== -1) cur = cur.filter(function (x) { return x !== s; });
+          else { cur.push(s); cur.sort(function (a) { return a === "午前" ? -1 : 1; }); }
+          if (cur.length) AVAIL[key] = cur; else delete AVAIL[key];
+          // 選択済みの希望が消えた場合は外す
+          state.wishes = state.wishes.filter(function (w) {
+            return AVAIL[w.date] && AVAIL[w.date].indexOf(w.slot) !== -1;
+          });
+          availUpdatedAt = new Date();
+          renderAvail();
+        });
+        td.appendChild(b);
+        tr.appendChild(td);
+      });
+
+      var tdMemo = document.createElement("td");
+      var inp = document.createElement("input");
+      inp.type = "text"; inp.id = "memo_" + key; inp.maxLength = 20;
+      inp.value = availMemo[key] || "";
+      inp.style.cssText = "font-size:12.5px;padding:4px 6px";
+      inp.addEventListener("input", function () { availMemo[key] = inp.value; });
+      tdMemo.appendChild(inp);
+      tr.appendChild(tdMemo);
+
+      body.appendChild(tr);
+    });
+
+    // JSON
+    var keys = Object.keys(AVAIL).sort();
+    var lines = ["{", '  "generated_at": "' + fmtDT(new Date()) + ':00",', '  "days": {'];
+    keys.forEach(function (k, i) {
+      lines.push('    "' + k + '": ["' + AVAIL[k].join('", "') + '"]' + (i === keys.length - 1 ? "" : ","));
+    });
+    lines.push("  }"); lines.push("}");
+    document.getElementById("availJson").textContent = lines.join("\n");
+
+    // alarms
+    var alarm = document.getElementById("availAlarm");
+    alarm.innerHTML = "";
+    var n = openDayCount(), stale = staleDays();
+    var msgs = [];
+    if (n === 0) msgs.push("<strong>選択可能日がゼロです。</strong>フォームはカレンダーを隠し、電話案内に切り替わります（02 タブで確認できます）。");
+    else if (n < 7) msgs.push("<strong>選択可能日が " + n + " 日分です（7 日分を下回りました）。</strong>受付担当と情シスへ通知メールが送られます。");
+    if (stale >= 3) msgs.push("<strong>最終更新から " + stale + " 日経過しています。</strong>3 日以上更新がないため、通知メールが送られます。");
+    if (msgs.length) {
+      msgs.forEach(function (m) {
+        var d = mk("div", "alarmbox");
+        d.innerHTML = "⚠ " + m;
+        alarm.appendChild(d);
+      });
+    } else {
+      var d = mk("div", "alarmbox ok");
+      d.innerHTML = "✓ 選択可能日 " + n + " 日分。最終更新 " + fmtDT(availUpdatedAt) + "。通知の条件には該当していません。";
+      alarm.appendChild(d);
+    }
+  }
+
+  document.getElementById("clearAll").addEventListener("click", function () {
+    AVAIL = {}; state.wishes = []; availUpdatedAt = new Date(); renderAvail();
+  });
+  document.getElementById("fillAll").addEventListener("click", function () {
+    seedAvail(); state.wishes = []; renderAvail();
+  });
+  document.getElementById("ageIt").addEventListener("click", function () {
+    availUpdatedAt = new Date(Date.now() - 4 * 86400000); renderAvail();
+  });
+  renderAvail();
+
+  /* ---------- restore tab ---------- */
+  var saved = null;
+  try { saved = localStorage.getItem("kenshin.tab"); } catch (e) {}
+  if (saved && TABS.some(function (t) { return t.btn === saved; })) showTab(saved);
+})();
+</script>
