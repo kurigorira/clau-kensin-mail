@@ -129,7 +129,26 @@ function readParameters_(e) {
   var multiple = e.parameters || {};
   if (multiple.options) raw.options = multiple.options;
 
+  // 希望日の受け口は2通りある。
+  //   JavaScript 有効 … カレンダーで選び、wishes に JSON で入る
+  //   JavaScript 無効 … wish1〜wish3 のプルダウン（'YYYY-MM-DD|午前' の形）
+  // 送信の形が違うだけで中身は同じなので、ここで1つに揃えてから検証へ渡す。
+  if (!raw.wishes) raw.wishes = JSON.stringify(collectWishSelects_(single));
+
   return raw;
+}
+
+/** wish1〜wish3 のプルダウンを [{date, slot}] に変換する。 */
+function collectWishSelects_(single) {
+  var wishes = [];
+  for (var i = 1; i <= WISH_MAX; i++) {
+    var value = trimmed_(single['wish' + i]);
+    if (!value) continue;
+    var parts = value.split('|');
+    if (parts.length !== 2) continue;
+    wishes.push({ date: parts[0], slot: parts[1] });
+  }
+  return wishes;
 }
 
 // ===== 画面の組み立て ===============================================

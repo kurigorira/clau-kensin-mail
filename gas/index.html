@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>健診・人間ドック 予約依頼フォーム</title>
+<!--
+  index.html — 申込画面
+  2026-09-16 作成。関連：main.gs（配信と送信受付）／config.gs（選択肢の定義）
+
+  選択肢はすべて config.gs から受け取る。この HTML に直書きしない。
+
+  JavaScript が無効でも入力・送信できるようにしてある（docs/01 F-01 の受け入れ条件）。
+  そのため全項目を最初から出し、JS が有効なときだけ分岐で隠す。希望日も、
+  JS 有効ならカレンダー、無効ならプルダウンで受ける。
+-->
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #5c6b6a;
+    --line: #c8d2d0;
+    --line-soft: #e2e8e7;
+    --accent: #0f6e63;
+    --accent-weak: #e6f2f0;
+    --error: #b3261e;
+    --error-weak: #fdeceb;
+    --warn: #8a4b0f;
+    --warn-weak: #fdf1e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    /* 高齢の方も読むので本文は大きめに固定する */
+    font: 17px/1.9 system-ui, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: var(--ink);
+    background: #fff;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 23px; line-height: 1.5; margin: 0 0 8px; }
+  h2 {
+    font-size: 18px; margin: 32px 0 4px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent); color: var(--accent);
+  }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--muted); font-size: 16px; }
+
+  .tel-box { border: 2px solid var(--accent); background: var(--accent-weak); padding: 14px 16px; margin: 18px 0; }
+  .tel-box .num { font-size: 27px; font-weight: 700; letter-spacing: .02em; display: block; }
+  .tel-box a { color: var(--ink); text-decoration: none; }
+
+  .notice { border-left: 5px solid var(--line); background: #f6f8f8; padding: 12px 16px; margin: 16px 0; font-size: 16px; }
+  .notice.warn { border-left-color: var(--warn); background: var(--warn-weak); color: var(--warn); }
+  .notice.stop { border: 2px solid var(--error); background: var(--error-weak); color: var(--error); padding: 16px; }
+  .notice p:last-child { margin-bottom: 0; }
+
+  fieldset { border: 0; padding: 0; margin: 0 0 8px; }
+  legend { padding: 0; }
+  .q { display: block; font-weight: 700; margin: 20px 0 8px; }
+  .req, .opt {
+    font-size: 13px; font-weight: 400; padding: 2px 7px; border-radius: 3px;
+    margin-left: 8px; vertical-align: 2px;
+  }
+  .req { background: var(--error-weak); color: var(--error); }
+  .opt { background: #eef1f1; color: var(--muted); }
+  .hint { font-size: 15px; color: var(--muted); margin: -4px 0 10px; }
+
+  /* 選択肢は指で押しやすい大きさにする */
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+  .choices.inline { flex-direction: row; flex-wrap: wrap; }
+  .choice {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: 12px 14px; min-height: 48px; cursor: pointer; background: #fff;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice input { margin: 4px 0 0; width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+  .choice .label { display: flex; flex-direction: column; }
+  .choice .sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .choice .price { font-size: 15px; color: var(--accent); font-weight: 700; }
+  .choice.on { border-color: var(--accent); background: var(--accent-weak); }
+
+  input[type="text"], input[type="tel"], input[type="email"], input[type="date"], select, textarea {
+    font: inherit; width: 100%; padding: 11px 12px; min-height: 48px;
+    border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink);
+  }
+  textarea { min-height: 90px; line-height: 1.8; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+
+  .cond { border-left: 5px solid var(--accent); background: var(--accent-weak); padding: 14px 16px; margin: 14px 0; }
+  .cond > :first-child { margin-top: 0; }
+  .cond .q { margin-top: 0; }
+
+  .cal { margin: 12px 0; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .cal-head button { font: inherit; padding: 8px 16px; min-height: 44px; border: 1px solid var(--line); background: #fff; border-radius: 4px; cursor: pointer; }
+  .cal-head button[disabled] { opacity: .4; cursor: default; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-grid .dow { text-align: center; font-size: 13px; color: var(--muted); padding: 4px 0; }
+  .cal-grid .dow.sun { color: var(--error); }
+  .cal-day {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font: inherit; font-size: 16px; border: 1px solid transparent; border-radius: 4px;
+    background: none; color: #b7c0bf; padding: 0;
+  }
+  .cal-day.open { background: var(--accent-weak); color: var(--accent); font-weight: 700; cursor: pointer; border-color: var(--accent-weak); }
+  .cal-day.open:hover { border-color: var(--accent); }
+  .cal-day.picked { background: var(--accent); color: #fff; }
+
+  .wishlist { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 8px; }
+  .wishlist li { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
+  .wishlist .rank { background: var(--accent-weak); color: var(--accent); font-size: 14px; padding: 3px 9px; border-radius: 3px; flex: none; }
+  .wishlist .txt { flex: 1; }
+  .wishlist button { font: inherit; font-size: 15px; padding: 8px 14px; min-height: 44px; border: 1px solid var(--line); background: #fff; border-radius: 4px; cursor: pointer; }
+
+  .actions { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .btn-send {
+    font: inherit; font-size: 19px; font-weight: 700; padding: 16px 24px; min-height: 56px;
+    border: 0; border-radius: 4px; background: var(--accent); color: #fff; cursor: pointer;
+  }
+  .btn-send:hover { filter: brightness(1.08); }
+
+  /* ハニーポット。人には見せないが、表示から外すと bot にも無視されるので見えない場所に置く */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .err-list { border: 2px solid var(--error); background: var(--error-weak); color: var(--error); padding: 14px 16px; margin: 16px 0; }
+  .err-list ul { margin: 8px 0 0; padding-left: 1.3em; }
+
+  .confirm-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .confirm-table th, .confirm-table td { border-bottom: 1px solid var(--line-soft); padding: 10px 8px; text-align: left; vertical-align: top; font-size: 16px; }
+  .confirm-table th { width: 38%; color: var(--muted); font-weight: 500; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line-soft); font-size: 15px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>健診・人間ドック　予約依頼フォーム</h1>
+  <p class="lead">ご希望の内容をお送りいただくと、担当者から折り返しお電話し、日程を確定します。<br>
+  <strong>このフォームの送信だけでは予約は確定しません。</strong></p>
+
+  <div class="tel-box">
+    お急ぎの方、入力にお困りの方はお電話ください。<br>
+    <a href="tel:<?= model.center.tel.replace(/-/g, '') ?>" class="num"><?= model.center.tel ?></a>
+    <?= model.center.name ?>（直通）／FAX <?= model.center.fax ?><br>
+    電話受付 <?= model.center.hours ?>
+  </div>
+
+  <div class="notice">
+    <p><strong>お申し込みの前に</strong><br>
+    「申し込み前のかならずお読みください」をご確認のうえ、お進みください。</p>
+    <p><strong>事業所・団体でまとめてお申し込みの方</strong>は、こちらのフォームでは受け付けていません。
+    お手数ですが、お電話（<?= model.center.tel ?>）でご連絡ください。</p>
+  </div>
+
+  <? if (!model.hasAvailability) { ?>
+    <!-- 候補がゼロ、または取得に失敗したとき。空のカレンダーは出さない（docs/03 §4-2） -->
+    <div class="notice stop">
+      <p>ただいまインターネットでのお申し込みを停止しています。<br>
+      お手数ですが、お電話でお申し込みください。</p>
+      <p class="num" style="font-size:27px;font-weight:700;"><?= model.center.tel ?></p>
+      <p><?= model.center.name ?>　受付 <?= model.center.hours ?></p>
+    </div>
+  <? } else { ?>
+
+  <div id="err" class="err-list" hidden>
+    <strong>入力内容をご確認ください</strong>
+    <ul id="err-items"></ul>
+  </div>
+
+  <form id="form" method="post" action="<?= model.execUrl ?>">
+    <input type="hidden" name="step" value="confirm" id="step">
+    <input type="hidden" name="elapsed_seconds" value="" id="elapsed">
+    <!-- 迷惑送信対策。人は入力しない欄で、値が入っていれば bot とみなす -->
+    <div class="hp" aria-hidden="true">
+      <label>FAX番号（入力しないでください）
+        <input type="text" name="<?= model.honeypotField ?>" tabindex="-1" autocomplete="off">
+      </label>
+    </div>
+
+    <!-- ===== 1. お申し込みの区分 ===== -->
+    <h2>1. お申し込みの区分</h2>
+    <fieldset>
+      <legend class="q">費用のお支払い方法にあたるものをお選びください<span class="req">必須</span></legend>
+      <div class="choices">
+        <? for (var ki = 0; ki < model.kubunList.length; ki++) { ?>
+          <label class="choice">
+            <input type="radio" name="kubun" value="<?= model.kubunList[ki].value ?>" data-kubun="<?= ki ?>">
+            <span class="label"><span><?= model.kubunList[ki].value ?></span></span>
+          </label>
+        <? } ?>
+      </div>
+    </fieldset>
+
+    <? for (var ke = 0; ke < model.kubunList.length; ke++) { ?>
+      <? if (model.kubunList[ke].extra.length) { ?>
+        <div class="cond js-extra" data-for="<?= ke ?>">
+          <? for (var fi = 0; fi < model.kubunList[ke].extra.length; fi++) { ?>
+            <? var field = model.kubunList[ke].extra[fi]; ?>
+            <label class="q" for="extra_<?= field.key ?>"><?= field.label ?><span class="req">必須</span></label>
+            <? if (field.type === 'select') { ?>
+              <select name="extra_<?= field.key ?>" id="extra_<?= field.key ?>">
+                <option value="">お選びください</option>
+                <? for (var oi = 0; oi < field.options.length; oi++) { ?>
+                  <option value="<?= field.options[oi] ?>"><?= field.options[oi] ?></option>
+                <? } ?>
+              </select>
+            <? } else { ?>
+              <input type="text" name="extra_<?= field.key ?>" id="extra_<?= field.key ?>" maxlength="40">
+            <? } ?>
+          <? } ?>
+        </div>
+      <? } ?>
+    <? } ?>
+
+    <!-- ===== 2. コース ===== -->
+    <h2>2. ご希望のコース</h2>
+    <p class="hint">迷われる場合は「決めていない・相談したい」をお選びください。お電話で一緒に決めます。<br>
+    料金は <?= model.priceAsOf ?> 時点のものです。改定される場合がありますので、目安としてご覧ください。</p>
+    <fieldset>
+      <legend class="q">コース<span class="req">必須</span></legend>
+      <div class="choices">
+        <? for (var ci = 0; ci < model.courseList.length; ci++) { ?>
+          <? var course = model.courseList[ci]; ?>
+          <label class="choice">
+            <input type="radio" name="course" value="<?= course.value ?>">
+            <span class="label">
+              <span><?= course.value ?></span>
+              <? if (course.price) { ?><span class="price">￥<?= course.price.toLocaleString('ja-JP') ?></span><? } ?>
+              <? if (course.price_note) { ?><span class="sub"><?= course.price_note ?></span><? } ?>
+            </span>
+          </label>
+        <? } ?>
+      </div>
+    </fieldset>
+
+    <!-- ===== 3. 追加の検査 ===== -->
+    <h2>3. 追加の検査</h2>
+    <p class="hint">セットに含まれていない検査を追加できます。<strong>胃の検査（胃カメラ・胃透視）もこちらでお選びください。</strong></p>
+    <fieldset>
+      <legend class="q">追加の検査<span class="opt">任意</span></legend>
+      <div class="choices">
+        <? for (var oi2 = 0; oi2 < model.optionList.length; oi2++) { ?>
+          <? var option = model.optionList[oi2]; ?>
+          <label class="choice">
+            <input type="checkbox" name="options" value="<?= option.value ?>"
+                   data-mr="<?= option.mr ? 1 : 0 ?>" data-ct="<?= option.ct ? 1 : 0 ?>"
+                   data-endo="<?= option.endo ? 1 : 0 ?>" data-stomach="<?= option.stomach ? 1 : 0 ?>"
+                   data-colon="<?= option.colon ? 1 : 0 ?>" data-fujinka="<?= option.fujinka ? 1 : 0 ?>">
+            <span class="label">
+              <span><?= option.value ?></span>
+              <span class="price">￥<?= option.price.toLocaleString('ja-JP') ?></span>
+            </span>
+          </label>
+        <? } ?>
+      </div>
+    </fieldset>
+
+    <div class="cond js-endo">
+      <span class="q">鎮静剤（眠くなるお薬）のご希望<span class="req">胃カメラをお選びの場合は必須</span></span>
+      <div class="choices inline">
+        <? for (var chi = 0; chi < model.chinseiList.length; chi++) { ?>
+          <label class="choice"><input type="radio" name="chinsei" value="<?= model.chinseiList[chi] ?>"><span class="label"><?= model.chinseiList[chi] ?></span></label>
+        <? } ?>
+      </div>
+      <div class="notice warn js-chinsei-warn" hidden>
+        <p>鎮静剤を使用した場合、<strong>当日はお車・バイク・自転車でお帰りいただけません。</strong>
+        公共交通機関をご利用になるか、ご家族の送迎をご手配ください。</p>
+      </div>
+    </div>
+
+    <div class="notice warn js-stomach" hidden>
+      <p>胃カメラ・胃透視は、<strong>受診前の絶食が必要です。</strong>具体的な時刻は折り返しのお電話でご案内します。</p>
+    </div>
+    <div class="notice warn js-colon" hidden>
+      <p>大腸カメラをご希望の方は、<strong>健診とは別日に再度ご来院いただきます。</strong>日程はお電話で調整します。</p>
+    </div>
+    <div class="notice warn js-fujinka" hidden>
+      <p>乳腺・婦人科の検査は<strong>水曜 10:00〜12:00 と金曜 14:00〜16:00</strong> に限って実施しています。
+      ご希望日によっては別の日をご案内する場合があります。お申し込みはそのまま進めていただけます。</p>
+    </div>
+
+    <!-- ===== 4. ご本人について ===== -->
+    <h2>4. ご本人について</h2>
+    <label class="q" for="name">お名前<span class="req">必須</span></label>
+    <input type="text" id="name" name="name" maxlength="40" autocomplete="name">
+
+    <label class="q" for="kana">フリガナ<span class="req">必須</span></label>
+    <p class="hint">全角カタカナでご入力ください。</p>
+    <input type="text" id="kana" name="kana" maxlength="40">
+
+    <label class="q" for="birth">生年月日<span class="req">必須</span></label>
+    <input type="date" id="birth" name="birth">
+
+    <fieldset>
+      <legend class="q">性別<span class="req">必須</span></legend>
+      <div class="choices inline">
+        <? for (var si = 0; si < model.sexList.length; si++) { ?>
+          <label class="choice"><input type="radio" name="sex" value="<?= model.sexList[si] ?>"><span class="label"><?= model.sexList[si] ?></span></label>
+        <? } ?>
+      </div>
+    </fieldset>
+
+    <label class="q" for="tel">電話番号（日中つながる番号）<span class="req">必須</span></label>
+    <p class="hint">数字とハイフンでご入力ください。折り返しのお電話に使います。</p>
+    <input type="tel" id="tel" name="tel" autocomplete="tel">
+
+    <label class="q" for="mail">メールアドレス<span class="req">必須</span></label>
+    <input type="email" id="mail" name="mail" autocomplete="email">
+
+    <label class="q" for="jikan">ご連絡しやすい時間帯<span class="req">必須</span></label>
+    <select id="jikan" name="jikan">
+      <option value="">お選びください</option>
+      <? for (var ji = 0; ji < model.jikanList.length; ji++) { ?>
+        <option value="<?= model.jikanList[ji] ?>"><?= model.jikanList[ji] ?></option>
+      <? } ?>
+    </select>
+
+    <label class="q" for="rireki">当院での健診の受診歴<span class="req">必須</span></label>
+    <select id="rireki" name="rireki">
+      <option value="">お選びください</option>
+      <? for (var ri = 0; ri < model.rirekiList.length; ri++) { ?>
+        <option value="<?= model.rirekiList[ri] ?>"><?= model.rirekiList[ri] ?></option>
+      <? } ?>
+    </select>
+
+    <!-- ===== 5. ご希望の日 ===== -->
+    <h2>5. ご希望の日</h2>
+    <p class="hint">お申し込みを受け付けられる日から、<?= model.wishMax ?>つまでお選びいただけます。
+    <strong>ここでお選びいただいた日は、受診日の確定ではありません。</strong>日程は折り返しのお電話で決定します。</p>
+
+    <!-- JavaScript が無効なとき用。有効なら JS がこれを隠してカレンダーに差し替える -->
+    <div id="wish-select">
+      <? for (var wi = 1; wi <= model.wishMax; wi++) { ?>
+        <label class="q" for="wish<?= wi ?>">第<?= wi ?>希望<? if (wi === 1) { ?><span class="req">必須</span><? } else { ?><span class="opt">任意</span><? } ?></label>
+        <select id="wish<?= wi ?>" name="wish<?= wi ?>">
+          <option value="">お選びください</option>
+          <? for (var dkey in model.availability.days) { ?>
+            <? for (var sl = 0; sl < model.availability.days[dkey].length; sl++) { ?>
+              <option value="<?= dkey ?>|<?= model.availability.days[dkey][sl] ?>"><?= dkey ?> <?= model.availability.days[dkey][sl] ?></option>
+            <? } ?>
+          <? } ?>
+        </select>
+      <? } ?>
+    </div>
+
+    <div id="wish-calendar" hidden>
+      <div class="cal">
+        <div class="cal-head">
+          <button type="button" id="cal-prev">前の月</button>
+          <strong id="cal-title"></strong>
+          <button type="button" id="cal-next">次の月</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div id="slot-pick"></div>
+      <ul class="wishlist" id="wishlist"></ul>
+      <p class="hint" id="wish-empty">まだ選ばれていません。</p>
+      <input type="hidden" name="wishes" id="wishes">
+    </div>
+
+    <!-- ===== 6. 安全のための確認 ===== -->
+    <h2>6. 安全のための確認</h2>
+    <p class="hint">当日の検査を安全に行うための確認です。<strong>病名やお薬の名前は入力しないでください。</strong>
+    詳しいことはお電話でうかがいます。</p>
+    <? for (var sfi = 0; sfi < model.safetyList.length; sfi++) { ?>
+      <? var safety = model.safetyList[sfi]; ?>
+      <fieldset class="js-safety" data-show="<?= safety.show ?>">
+        <legend class="q"><?= safety.label ?><span class="req">必須</span></legend>
+        <div class="choices inline">
+          <? for (var ai = 0; ai < safety.options.length; ai++) { ?>
+            <label class="choice">
+              <input type="radio" name="safety_<?= safety.key ?>" value="<?= safety.options[ai] ?>">
+              <span class="label"><?= safety.options[ai] ?></span>
+            </label>
+          <? } ?>
+        </div>
+      </fieldset>
+    <? } ?>
+
+    <!-- ===== 7. ご質問・ご要望 ===== -->
+    <h2>7. ご質問・ご要望</h2>
+    <label class="q" for="biko">ご自由にお書きください<span class="opt">任意・150文字以内</span></label>
+    <textarea id="biko" name="biko" maxlength="150"></textarea>
+
+    <div class="actions">
+      <!--
+        id に "submit" を使わないこと。フォームは配下のコントロールを名前付きプロパティとして
+        持つため、id="submit" にすると form.submit() が上書きされ、JS からの送信ができなくなる。
+      -->
+      <button type="submit" class="btn-send" id="btn-confirm">入力内容を確認する</button>
+      <p class="hint">送信しても受診日は確定しません。担当者から <?= model.callbackDays ?> 営業日以内にお電話します。</p>
+    </div>
+  </form>
+
+  <!-- JavaScript 有効時の確認画面。無効なときはサーバ側で確認画面を出す -->
+  <div id="confirm" hidden>
+    <h2>入力内容のご確認</h2>
+    <p>この内容でよろしければ「送信する」を押してください。<strong>送信しても受診日は確定しません。</strong></p>
+    <table class="confirm-table"><tbody id="confirm-body"></tbody></table>
+    <div class="actions">
+      <button type="button" class="btn-send" id="do-send">送信する</button>
+      <button type="button" id="back" style="font:inherit;padding:14px;min-height:48px;border:1px solid var(--line);background:#fff;border-radius:4px;cursor:pointer;">修正する</button>
+    </div>
+  </div>
+
+  <? } ?>
+
+  <footer>
+    <?= model.center.name ?><br>
+    電話 <?= model.center.tel ?>（直通）／FAX <?= model.center.fax ?><br>
+    電話受付 <?= model.center.hours ?><br>
+    <?= model.center.address ?>
+  </footer>
+</div>
+
+<? if (model.hasAvailability) { ?>
+<script>
+(function () {
+  'use strict';
+
+  // 画面の組み立てに必要な値はサーバから受け取る。ここに選択肢を書かない。
+  var AVAIL = <?!= JSON.stringify(model.availability) ?>;
+  var SAFETY = <?!= JSON.stringify(model.safetyList) ?>;
+  var WISH_MAX = <?= model.wishMax ?>;
+  var WD = ['日', '月', '火', '水', '木', '金', '土'];
+
+  var form = document.getElementById('form');
+  var openedAt = Date.now();
+
+  // JavaScript が動いたので、プルダウンを隠してカレンダーに差し替える
+  document.getElementById('wish-select').hidden = true;
+  document.getElementById('wish-calendar').hidden = false;
+  for (var w = 1; w <= WISH_MAX; w++) {
+    var sel = document.getElementById('wish' + w);
+    if (sel) sel.disabled = true;   // 送信データに混ざらないようにする
+  }
+
+  var wishes = [];
+  var pendingDate = null;
+
+  // ---- 選択肢の見た目を状態に合わせる ----
+  function paintChoices() {
+    var labels = form.querySelectorAll('label.choice');
+    for (var i = 0; i < labels.length; i++) {
+      var input = labels[i].querySelector('input');
+      labels[i].classList.toggle('on', !!(input && input.checked));
+    }
+  }
+
+  function checkedOptions() {
+    var list = [];
+    var boxes = form.querySelectorAll('input[name="options"]:checked');
+    for (var i = 0; i < boxes.length; i++) list.push(boxes[i]);
+    return list;
+  }
+  function anyFlag(flag) {
+    return checkedOptions().some(function (box) { return box.getAttribute('data-' + flag) === '1'; });
+  }
+
+  // ---- 分岐の出し分け ----
+  function refresh() {
+    // 区分ごとの追加項目
+    var kubun = form.querySelector('input[name="kubun"]:checked');
+    var kubunIndex = kubun ? kubun.getAttribute('data-kubun') : null;
+    var extras = document.querySelectorAll('.js-extra');
+    for (var i = 0; i < extras.length; i++) {
+      var show = extras[i].getAttribute('data-for') === kubunIndex;
+      extras[i].hidden = !show;
+      setDisabled(extras[i], !show);
+    }
+
+    // 胃カメラ → 鎮静剤
+    var endo = anyFlag('endo');
+    var endoBlock = document.querySelector('.js-endo');
+    endoBlock.hidden = !endo;
+    setDisabled(endoBlock, !endo);
+    var chinsei = form.querySelector('input[name="chinsei"]:checked');
+    document.querySelector('.js-chinsei-warn').hidden = !(endo && chinsei && chinsei.value === '希望する');
+
+    document.querySelector('.js-stomach').hidden = !anyFlag('stomach');
+    document.querySelector('.js-colon').hidden = !anyFlag('colon');
+    document.querySelector('.js-fujinka').hidden = !anyFlag('fujinka');
+
+    // 安全確認。表示条件を満たすものだけ出す（サーバ側の form.gs と同じ条件）
+    var sex = form.querySelector('input[name="sex"]:checked');
+    var isFemale = !!(sex && sex.value === '女性');
+    var blocks = document.querySelectorAll('.js-safety');
+    for (var j = 0; j < blocks.length; j++) {
+      var show = blocks[j].getAttribute('data-show');
+      var visible =
+        show === 'always' ? true :
+        show === 'female' ? isFemale :
+        show === 'mr'     ? anyFlag('mr') :
+        show === 'ct'     ? anyFlag('ct') :
+        show === 'endo'   ? endo : false;
+      blocks[j].hidden = !visible;
+      setDisabled(blocks[j], !visible);
+    }
+    paintChoices();
+  }
+
+  /**
+   * 隠した項目は disabled にして送信データから外す。
+   * 隠すだけだと値が送られ、「未表示」と「未入力」の区別がつかなくなる。
+   */
+  function setDisabled(container, disabled) {
+    var fields = container.querySelectorAll('input, select, textarea');
+    for (var i = 0; i < fields.length; i++) fields[i].disabled = disabled;
+  }
+
+  // 胃カメラと胃透視は同日に両方は実施しない想定（仮）。片方を選んだら他方を外す。
+  form.addEventListener('change', function (event) {
+    var target = event.target;
+    if (target.name === 'options' && target.checked && target.getAttribute('data-stomach') === '1') {
+      var boxes = form.querySelectorAll('input[name="options"][data-stomach="1"]');
+      for (var i = 0; i < boxes.length; i++) if (boxes[i] !== target) boxes[i].checked = false;
+    }
+    refresh();
+  });
+
+  // ---- カレンダー ----
+  var viewYear, viewMonth;
+  (function initMonth() {
+    var keys = Object.keys(AVAIL.days).sort();
+    var first = keys.length ? keys[0] : null;
+    var base = first ? new Date(Number(first.slice(0, 4)), Number(first.slice(5, 7)) - 1, 1) : new Date();
+    viewYear = base.getFullYear();
+    viewMonth = base.getMonth();
+  })();
+
+  function monthHasOpen(year, month) {
+    for (var key in AVAIL.days) {
+      if (Number(key.slice(0, 4)) === year && Number(key.slice(5, 7)) - 1 === month) return true;
+    }
+    return false;
+  }
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function isoOf(year, month, day) { return year + '-' + pad2(month + 1) + '-' + pad2(day); }
+
+  function drawCalendar() {
+    document.getElementById('cal-title').textContent = viewYear + '年 ' + (viewMonth + 1) + '月';
+    document.getElementById('cal-prev').disabled = !monthHasOpen(
+      viewMonth === 0 ? viewYear - 1 : viewYear, viewMonth === 0 ? 11 : viewMonth - 1);
+    document.getElementById('cal-next').disabled = !monthHasOpen(
+      viewMonth === 11 ? viewYear + 1 : viewYear, viewMonth === 11 ? 0 : viewMonth + 1);
+
+    var grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+    for (var d = 0; d < 7; d++) {
+      var head = document.createElement('div');
+      head.className = 'dow' + (d === 0 ? ' sun' : '');
+      head.textContent = WD[d];
+      grid.appendChild(head);
+    }
+    var lead = new Date(viewYear, viewMonth, 1).getDay();
+    for (var b = 0; b < lead; b++) grid.appendChild(document.createElement('div'));
+
+    var total = new Date(viewYear, viewMonth + 1, 0).getDate();
+    for (var day = 1; day <= total; day++) {
+      var key = isoOf(viewYear, viewMonth, day);
+      var slots = AVAIL.days[key];
+      var cell;
+      if (slots && slots.length) {
+        cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cal-day open' + (wishes.some(function (x) { return x.date === key; }) ? ' picked' : '');
+        cell.setAttribute('aria-label', (viewMonth + 1) + '月' + day + '日 ' + slots.join('・') + ' 申込可');
+        cell.addEventListener('click', (function (k) {
+          return function () { pendingDate = k; drawSlotPick(); };
+        })(key));
+      } else {
+        cell = document.createElement('div');
+        cell.className = 'cal-day';
+      }
+      cell.textContent = String(day);
+      grid.appendChild(cell);
+    }
+  }
+
+  function drawSlotPick() {
+    var area = document.getElementById('slot-pick');
+    area.innerHTML = '';
+    if (!pendingDate || !AVAIL.days[pendingDate]) return;
+    var box = document.createElement('div');
+    box.className = 'cond';
+    var title = document.createElement('span');
+    title.className = 'q';
+    title.textContent = pendingDate + ' のご希望';
+    box.appendChild(title);
+    var row = document.createElement('div');
+    row.className = 'choices inline';
+    AVAIL.days[pendingDate].forEach(function (slot) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'btn-send';
+      button.style.fontSize = '17px';
+      button.style.padding = '12px 20px';
+      button.style.minHeight = '48px';
+      button.textContent = slot;
+      button.addEventListener('click', function () { addWish(pendingDate, slot); });
+      row.appendChild(button);
+    });
+    box.appendChild(row);
+    area.appendChild(box);
+  }
+
+  function addWish(date, slot) {
+    if (wishes.length >= WISH_MAX) { showErrors(['ご希望は' + WISH_MAX + 'つまでです。変更する場合は、選んだものを外してください。']); return; }
+    if (wishes.some(function (x) { return x.date === date && x.slot === slot; })) return;
+    wishes.push({ date: date, slot: slot });
+    pendingDate = null;
+    hideErrors();
+    drawCalendar(); drawSlotPick(); drawWishes();
+  }
+
+  function drawWishes() {
+    var list = document.getElementById('wishlist');
+    list.innerHTML = '';
+    document.getElementById('wish-empty').hidden = wishes.length > 0;
+    wishes.forEach(function (wish, index) {
+      var item = document.createElement('li');
+      var rank = document.createElement('span');
+      rank.className = 'rank';
+      rank.textContent = '第' + (index + 1) + '希望';
+      var text = document.createElement('span');
+      text.className = 'txt';
+      var d = new Date(Number(wish.date.slice(0, 4)), Number(wish.date.slice(5, 7)) - 1, Number(wish.date.slice(8, 10)));
+      text.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）' + wish.slot;
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = '外す';
+      remove.addEventListener('click', function () {
+        wishes.splice(index, 1);
+        drawCalendar(); drawWishes();
+      });
+      item.appendChild(rank); item.appendChild(text); item.appendChild(remove);
+      list.appendChild(item);
+    });
+    document.getElementById('wishes').value = JSON.stringify(wishes);
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', function () {
+    if (viewMonth === 0) { viewYear--; viewMonth = 11; } else { viewMonth--; }
+    pendingDate = null; drawCalendar(); drawSlotPick();
+  });
+  document.getElementById('cal-next').addEventListener('click', function () {
+    if (viewMonth === 11) { viewYear++; viewMonth = 0; } else { viewMonth++; }
+    pendingDate = null; drawCalendar(); drawSlotPick();
+  });
+
+  // ---- 画面側の入力チェック ----
+  // これは親切機能。防御はサーバ側（form.gs）で必ず行う。
+  function collectErrors() {
+    var errors = [];
+    function value(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function picked(name) { var el = form.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+
+    if (!picked('kubun')) errors.push('お申し込みの区分をお選びください。');
+    var extras = document.querySelectorAll('.js-extra');
+    for (var i = 0; i < extras.length; i++) {
+      if (extras[i].hidden) continue;
+      var fields = extras[i].querySelectorAll('input, select');
+      for (var f = 0; f < fields.length; f++) {
+        if (!fields[f].value.trim()) errors.push('この区分で必要な項目をご入力ください。');
+      }
+    }
+    if (!picked('course')) errors.push('ご希望のコースをお選びください。');
+    if (anyFlag('endo') && !picked('chinsei')) errors.push('鎮静剤のご希望をお選びください。');
+    if (!value('name')) errors.push('お名前をご入力ください。');
+    var kana = value('kana');
+    if (!kana) errors.push('フリガナをご入力ください。');
+    else if (!/^[ァ-ヶー\s　]+$/.test(kana)) errors.push('フリガナは全角カタカナでご入力ください。');
+    if (!value('birth')) errors.push('生年月日をご入力ください。');
+    if (!picked('sex')) errors.push('性別をお選びください。');
+    var tel = value('tel');
+    if (!tel) errors.push('電話番号をご入力ください。');
+    else if (!/^[0-9-]+$/.test(tel)) errors.push('電話番号は数字とハイフンでご入力ください。');
+    var mail = value('mail');
+    if (!mail) errors.push('メールアドレスをご入力ください。');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) errors.push('メールアドレスの形式をご確認ください。');
+    if (!value('jikan')) errors.push('ご連絡しやすい時間帯をお選びください。');
+    if (!value('rireki')) errors.push('当院での健診の受診歴をお選びください。');
+    if (!wishes.length) errors.push('ご希望の日を1つ以上お選びください。');
+
+    SAFETY.forEach(function (item) {
+      var block = document.querySelector('.js-safety[data-show="' + item.show + '"]');
+      void block;
+      var input = form.querySelector('input[name="safety_' + item.key + '"]');
+      if (!input || input.disabled) return;
+      if (!form.querySelector('input[name="safety_' + item.key + '"]:checked')) {
+        errors.push('「' + item.label + '」にお答えください。');
+      }
+    });
+    return errors;
+  }
+
+  function showErrors(errors) {
+    var box = document.getElementById('err');
+    var list = document.getElementById('err-items');
+    list.innerHTML = '';
+    errors.forEach(function (message) {
+      var item = document.createElement('li');
+      item.textContent = message;
+      list.appendChild(item);
+    });
+    box.hidden = false;
+    box.scrollIntoView({ block: 'center' });
+  }
+  function hideErrors() { document.getElementById('err').hidden = true; }
+
+  // ---- 確認画面 ----
+  function buildConfirm() {
+    var body = document.getElementById('confirm-body');
+    body.innerHTML = '';
+    function add(label, text) {
+      if (!text) return;
+      var tr = document.createElement('tr');
+      var th = document.createElement('th'); th.textContent = label;
+      var td = document.createElement('td'); td.textContent = text;
+      tr.appendChild(th); tr.appendChild(td); body.appendChild(tr);
+    }
+    function picked(name) { var el = form.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+    function value(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+    add('お申し込みの区分', picked('kubun'));
+    add('ご希望のコース', picked('course'));
+    var options = checkedOptions().map(function (box) { return box.value; });
+    add('追加の検査', options.length ? options.join('、') : 'なし');
+    if (anyFlag('endo')) add('鎮静剤のご希望', picked('chinsei'));
+    add('お名前', value('name') + '（' + value('kana') + '）');
+    add('生年月日・性別', value('birth') + ' / ' + picked('sex'));
+    add('電話番号', value('tel'));
+    add('メールアドレス', value('mail'));
+    add('ご連絡しやすい時間帯', value('jikan'));
+    add('当院での受診歴', value('rireki'));
+    wishes.forEach(function (wish, index) { add('第' + (index + 1) + '希望', wish.date + ' ' + wish.slot); });
+    SAFETY.forEach(function (item) {
+      var input = form.querySelector('input[name="safety_' + item.key + '"]:checked');
+      if (input && !input.disabled) add(item.label, input.value);
+    });
+    add('ご質問・ご要望', value('biko'));
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();       // JS 有効時は、まず画面側で確認する
+    var errors = collectErrors();
+    if (errors.length) { showErrors(errors); return; }
+    hideErrors();
+    buildConfirm();
+    form.hidden = true;
+    document.getElementById('confirm').hidden = false;
+    window.scrollTo(0, 0);
+  });
+
+  document.getElementById('back').addEventListener('click', function () {
+    document.getElementById('confirm').hidden = true;
+    form.hidden = false;
+    window.scrollTo(0, 0);
+  });
+
+  var sending = false;
+  document.getElementById('do-send').addEventListener('click', function () {
+    if (sending) return;          // 二重クリックで2件入るのを防ぐ
+    sending = true;
+    this.disabled = true;
+    this.textContent = '送信しています…';
+    document.getElementById('step').value = 'send';
+    document.getElementById('elapsed').value = String(Math.floor((Date.now() - openedAt) / 1000));
+    // hidden にしていても中の値は送信される（送信を止めるのは disabled のほう）。
+    // 隠したまま submit() してよい。
+    form.submit();
+  });
+
+  drawCalendar();
+  drawWishes();
+  refresh();
+})();
+</script>
+<? } ?>
+</body>
+</html>
