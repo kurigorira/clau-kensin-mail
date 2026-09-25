@@ -18,12 +18,22 @@
 | `notify.gs` | 枯渇・未更新の通知、過去日の移動、保持期間1年の退避と削除 |
 | `index.html` | 申込画面。選択肢は config.gs から受け取る |
 
-`tools/` にある2つは **GAS へは上げない**（`gas/` の外に置いてあるのはそのため）。
+`tools/` にあるものは **GAS へは上げない**（`gas/` の外に置いてあるのはそのため）。
 
 | ツール | 用途 |
 |---|---|
-| `node tools/local-test.js` | GAS の API をスタブして `doPost` を手元で通す。65項目 |
+| `tools/gas-sandbox.js` | GAS の API を差し替えて `.gs` を手元で動かす土台。下の3つが使う |
+| `node tools/local-test.js` | `doPost` を手元で通す。68項目 |
 | `node tools/render-form.js` | `index.html` を普通の HTML に書き出して見た目を確認する |
+| `node tools/render-screens.js` | 全画面（入力・確認・完了・エラー・停止中）を `preview-screens/` に書き出す |
+| `node tools/shoot-screens.js` | その画面を撮って `docs/screens/` に入れる |
+
+`shoot-screens.js` だけ **playwright が要る**。プロジェクトの依存にはしないので、
+使うときだけ別の場所に入れて `NODE_PATH` で渡す（手順はファイル冒頭のコメント）。
+
+画面サンプル（`docs/kensin-form-screens.html`）は受付担当に文言を見てもらうための資料。
+`gas/index.html` や `config.gs` を直したら、`render-screens.js` → `shoot-screens.js` の順で
+撮り直し、画像とサンプルの両方をコミットする。
 
 ---
 

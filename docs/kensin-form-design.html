@@ -393,7 +393,7 @@
     <div class="note caution">
       <span class="note-label">最上流の判断 &middot; 決着</span>
       <p><strong>2026-09-16、Google クラウド利用の院内承認を取得しました。案 D で確定です。</strong>これまで全体の最上流にあった「認められなければ案 B へ全面切り替え」という条件は外れ、構成がひっくり返るリスクはなくなりました。</p>
-      <p><strong>ただし条件が 2 つ付いています</strong> —— <em>Google Workspace 契約が前提</em>、<em>保持期間は 1 年まで</em>。どちらも満たさなければ承認が無効になるため、09 節で制約として扱っています。</p>
+      <p><strong>ただし条件が 2 つ付いています</strong> —— <em>Google Workspace 契約が前提</em>、<em>保持期間は 1 年まで</em>。どちらも満たさなければ承認が無効になるため、09 節で制約として扱っています。<strong style="color:var(--ok)">2026-09-25 に Workspace の契約が完了し、2 つとも満たしました。</strong>ただし条件が消えたわけではなく、無償アカウントへ戻した時点で承認は無効になります。</p>
       <p>業者向け仕様（<code>docs/02_メール仕様.md</code> と <code>vendor/</code>）は<strong>削除せず残します</strong>。将来サイト内へフォームを移す判断をしたとき、そのまま発注仕様として使えるためです。</p>
     </div>
   </section>
@@ -594,12 +594,12 @@
       <li><strong>含まれる情報</strong>：氏名、フリガナ、生年月日、性別、電話番号、メール、保険証記号番号（区分による）、受診希望内容、安全確認 3 択の回答</li>
       <li><strong>要配慮個人情報</strong>：妊娠・体内金属・アレルギー・服薬は健康状態に関する情報。<strong>該当の有無（3 択）のみ</strong>を取得し、病名・薬剤名は取得しない</li>
       <li><strong>保管場所</strong>：Google スプレッドシート。<strong>「リンクを知る全員」は使わず、8 名＋情シスの個人アカウントを個別に追加</strong></li>
-      <li><strong>アカウント</strong>：<em>Google Workspace の契約が承認条件</em>。無償 Gmail の寄せ集めは<strong>不可</strong>（退職者のアカウントを病院が止められないため）</li>
+      <li><strong>アカウント</strong>：<em>Google Workspace の契約が承認条件</em>。無償 Gmail の寄せ集めは<strong>不可</strong>（退職者のアカウントを病院が止められないため）。<strong style="color:var(--ok)">2026-09-25 に 8 名＋情シス分の契約が完了</strong></li>
       <li><strong>保持期間</strong>：<em>1 年（上限）</em>。経過後は CSV へ退避してから台帳から<strong>削除</strong>する</li>
     </ul>
     <div class="note alarm">
       <span class="note-label">2026-09-16 の承認に付いた 2 つの条件</span>
-      <p>クラウド利用の承認は無条件ではありません。<strong>Workspace 契約が前提</strong>であること、<strong>保持期間は 1 年まで</strong>であること —— この 2 つは「推奨」ではなく、<strong>満たさなければ承認自体が無効になる制約</strong>です。</p>
+      <p>クラウド利用の承認は無条件ではありません。<strong>Workspace 契約が前提</strong>であること、<strong>保持期間は 1 年まで</strong>であること —— この 2 つは「推奨」ではなく、<strong>満たさなければ承認自体が無効になる制約</strong>です。<strong style="color:var(--ok)">2026-09-25 時点で 2 つとも満たしています</strong>（契約完了、削除は <code>notify.gs</code> で自動化）。<strong>満たし続けることが条件</strong>であって、一度満たせば終わりではありません。</p>
       <p>特に保持期間は<strong>上限</strong>であって目安ではありません。放置すれば条件違反になるため、年次の CSV 退避と<strong>削除</strong>を <code>notify.gs</code> の時間主導トリガーに入れます。要件定義書にある「月 1 回 CSV エクスポート」はバックアップの話で、削除の話ではありません。<strong>退避と削除は別物です。</strong></p>
     </div>
     <p>確定した健診の記録は既存の健診システム側が正本です。この台帳は<strong>予約依頼の受付記録</strong>であって、健診記録ではありません。</p>
@@ -613,7 +613,7 @@
         <tbody>
           <tr><td>受付可能日の更新が止まり、選べる日がなくなる</td><td style="color:var(--danger)">大</td><td>枯渇（7 日分未満）・未更新（3 日）を GAS が自動通知。枯渇時は電話案内へ切り替え</td></tr>
           <tr style="opacity:.62"><td><s>Google クラウド利用が規程上認められない</s></td><td style="color:var(--ok)">解消</td><td><strong>2026-09-16 に承認を取得したため解消。</strong>ただし承認条件（Workspace 契約・保持期間 1 年）を満たさなくなれば復活する</td></tr>
-          <tr><td>Workspace の契約が進まず、本番運用を開始できない</td><td style="color:var(--warn)">中</td><td>承認条件のため代替がない。事務長・情シスへ早めに費用と手続きを上げる（8 名＋情シス分）</td></tr>
+          <tr style="opacity:.62"><td><s>Workspace の契約が進まず、本番運用を開始できない</s></td><td style="color:var(--ok)">解消</td><td><strong>2026-09-25 に契約完了。</strong>承認条件は 2 つとも満たした。無償アカウントへ戻せば復活する</td></tr>
           <tr><td>保持期間 1 年を超えたデータが台帳に残り、承認条件違反になる</td><td style="color:var(--warn)">中</td><td>年次の CSV 退避＋<strong>削除</strong>を GAS の時間主導トリガーで自動化する。人手の運用だけに頼らない</td></tr>
           <tr><td>通知メールが迷惑メール判定され届かない</td><td style="color:var(--danger)">大</td><td>SPF を事前確認。試験時に 3 系統へ着信確認。<strong>加えて、台帳に 24 時間以上「未対応」があれば気づける運用にする</strong></td></tr>
           <tr><td>依頼が来ても誰も見ていない（休日明け等）</td><td style="color:var(--warn)">中</td><td>自動返信で「2 営業日以内」と明示して期待値を下げる。日次確認の当番を決める</td></tr>
@@ -631,18 +631,21 @@
     <h3>現在の状況</h3>
     <ul>
       <li>要件定義・メール仕様・受付可能日カレンダー仕様・サイト調査 —— <strong>完了</strong></li>
-      <li>画面モック（<code>mock/index.html</code>）—— <strong>動作する状態</strong>。分岐・検証・確認画面・メール文面まで確認できる</li>
-      <li>GAS 側（<code>gas/</code>）—— <strong>未着手</strong></li>
+      <li>画面モック（<code>mock/index.html</code>）—— <strong>業者提示用の初期モック</strong>。コース一覧が古いので参照しない</li>
+      <li>GAS 側（<code>gas/</code>）—— <strong style="color:var(--ok)">コードは揃った</strong>。画面・送信処理・メール 2 通・定期通知まで実装済み。手元の検証（バックエンド 68 項目／画面 46 項目）は通っている。<strong>まだデプロイしていない</strong></li>
+      <li>承認条件 —— <strong style="color:var(--ok)">2 つとも充足</strong>（Workspace 契約 2026-09-25 完了／保持期間 1 年は <code>notify.gs</code> で自動化）</li>
+      <li>画面サンプル —— <strong style="color:var(--ok)">作成済み</strong>。全 18 画面を並べた別資料（<code>docs/kensin-form-screens.html</code>）。デプロイを待たずに受付担当へ回せる</li>
     </ul>
 
     <h3>次にやること</h3>
-    <pre class="block">1. mock/index.html に未反映の8項目を反映（04_サイト調査メモ §6）
-2. スプレッドシート2シート（予約依頼台帳／受付可能日）を作る
-3. GAS：フォーム配信（HtmlService）＋送信処理＋メール2通
-4. GAS：受付可能日の枯渇・未更新の通知トリガー
-5. ダミー10件で疎通確認
-6. 受付担当2〜3名に触ってもらう
+    <pre class="block">1. スプレッドシート2シート（予約依頼台帳／受付可能日）を作る
+2. config.gs の SPREADSHEET_ID とメールアドレスを差し替える
+3. setupLedgerSheet() / setupTriggers() を実行、onEditAvailability を手で登録
+4. ウェブアプリとしてデプロイ
+5. ダミー10件で疎通確認（メール到達・文字化け・二重起票）
+6. 受付担当2〜3名に触ってもらう  ← 画面サンプルで前倒しできる
 7. 業者へリンク追加を依頼</pre>
+    <p>承認条件が 2 つとも満たされたため、<strong>本番運用を止めていた前提はなくなりました</strong>。残っているのは上の手作業だけです。</p>
 
     <h3>モックへの未反映 8 項目</h3>
     <p>02 タブの試作では、このうち<strong>内容に関わる 3・4・5・6・7・8 を反映済み</strong>です（該当箇所に <span class="newtag">反映</span> を付けています）。原本のモックへ移す際の参照にしてください。</p>
@@ -697,7 +700,7 @@
           <tr><td>個人情報保護担当・徳洲会本部</td><td>Google クラウド利用の可否、取得項目</td><td><strong>最優先</strong></td></tr>
           <tr><td>健診部門責任者</td><td>折り返し 2 営業日、日次確認の当番、受付可能日の更新当番</td><td>フェーズ 0</td></tr>
           <tr><td>健診部門</td><td>サイトに記載が無いもの（呼吸器ドック・レディースドック・腫瘍マーカー・骨密度）の実在有無</td><td>フェーズ 1</td></tr>
-          <tr><td>事務長・情シス</td><td><strong>Google Workspace の契約</strong>（8 名＋情シス分）。承認条件のため必須</td><td><strong>本番公開前</strong></td></tr>
+          <tr style="opacity:.62"><td>事務長・情シス</td><td><s><strong>Google Workspace の契約</strong>（8 名＋情シス分）</s></td><td style="color:var(--ok);font-weight:700">2026-09-25 完了</td></tr>
           <tr><td>健診受付 8 名</td><td>台帳の使い方、当番</td><td>試用時</td></tr>
           <tr><td>外部制作業者</td><td>リンク追加の見積・作業日数</td><td>公開前</td></tr>
         </tbody>
@@ -707,7 +710,7 @@
 
   <section class="doc prose" id="undecided">
     <h2><span class="sec">12</span>未決事項</h2>
-    <p>要件定義書の 11 件と <code>CLAUDE.md</code> の 5 件を突き合わせ、重複を畳んだ一覧です。仮置きの値が入っているので、違うものだけ直してください。<strong>#1 は 2026-09-16 に決着しました</strong>（下の表で網掛け）。残り 11 件のうち、実装着手を止めているのは #2 と #3 です。</p>
+    <p>要件定義書の 11 件と <code>CLAUDE.md</code> の 5 件を突き合わせ、重複を畳んだ一覧です。仮置きの値が入っているので、違うものだけ直してください。網掛けの行は決着済みです（#1・#2・#7 は 2026-09-16、<strong>#13 は 2026-09-25 に決着</strong>）。<strong>実装とデプロイを止めている未決はもうありません。</strong>残りは運用の詰め（#5・#6・#9）と、健診部門への確認（#3 系）です。</p>
   </section>
   <div class="scroller">
     <table class="t-wide">
@@ -724,7 +727,7 @@
         <tr><td class="num">5</td><td>折り返し連絡の目安と日次確認の当番</td><td>（仮）2 営業日以内・当番制</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
         <tr><td class="num">6</td><td>受付可能日の更新当番と、確保する候補日数</td><td>（仮）日替わり当番／2 週間先まで最低 10 日分</td><td>健診部門責任者</td><td>フェーズ 0</td></tr>
         <tr style="opacity:.62"><td class="num">7</td><td>台帳データの保持期間</td><td><strong style="color:var(--ok)">決定：1 年（上限）</strong>。経過後は CSV へ退避してから<strong>削除</strong></td><td>個人情報保護担当</td><td style="color:var(--ok);font-weight:700">2026-09-16 決定済み</td></tr>
-        <tr><td class="num">13</td><td><strong>Google Workspace の契約手続き</strong>（8 名＋情シス分）</td><td>未着手。承認条件のため必須</td><td>事務長・情シス</td><td style="color:var(--danger);font-weight:700">本番公開前</td></tr>
+        <tr style="opacity:.62"><td class="num">13</td><td><strong>Google Workspace の契約手続き</strong>（8 名＋情シス分）</td><td><strong style="color:var(--ok)">決定：契約完了</strong>。承認条件 2 つはこれで両方充足</td><td>事務長・情シス</td><td style="color:var(--ok);font-weight:700">2026-09-25 完了</td></tr>
         <tr><td class="num">8</td><td>現在の電話件数（1 週間計測）</td><td>（仮）月 20〜100 件</td><td>健診受付</td><td>フェーズ 1</td></tr>
         <tr><td class="num">9</td><td>受付用メールアドレスの新設と 8 名の閲覧方法</td><td>（仮）専用アドレスを新設</td><td>情シス・健診部門</td><td>フェーズ 0</td></tr>
         <tr><td class="num">10</td><td>受付可能日 JSON を匿名公開してよいか</td><td>（仮）可（個人情報を含まない）</td><td>個人情報保護担当</td><td>フェーズ 0</td></tr>
