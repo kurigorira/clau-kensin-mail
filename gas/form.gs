@@ -77,9 +77,16 @@ function validateApplication_(raw, availability) {
   if (trimmed_(raw[HONEYPOT_FIELD])) {
     return { ok: false, code: 'bot', errors: ['迷惑送信とみなしました。'] };
   }
-  var elapsedSeconds = Number(raw.elapsed_seconds);
-  if (!isNaN(elapsedSeconds) && elapsedSeconds >= 0 && elapsedSeconds < MIN_SUBMIT_SECONDS) {
-    return { ok: false, code: 'bot', errors: ['迷惑送信とみなしました。'] };
+  // 経過秒は画面側の JavaScript が入れる。JavaScript が無効なら空のまま届く。
+  // 空を 0 秒として扱うと、JS を切っている利用者が全員 bot 判定になり、
+  // 本人は完了画面を見たのに台帳に何も残らない、という最悪の壊れ方をする。
+  // 値が入っているときだけ判定する。
+  var elapsedText = trimmed_(raw.elapsed_seconds);
+  if (elapsedText !== '') {
+    var elapsedSeconds = Number(elapsedText);
+    if (!isNaN(elapsedSeconds) && elapsedSeconds >= 0 && elapsedSeconds < MIN_SUBMIT_SECONDS) {
+      return { ok: false, code: 'bot', errors: ['迷惑送信とみなしました。'] };
+    }
   }
 
   // --- 受診区分と、区分ごとの追加項目 ------------------------------

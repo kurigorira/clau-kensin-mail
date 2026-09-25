@@ -126,6 +126,31 @@ var SAFETY_LIST = [
 // 台帳で色を付ける回答（docs/01 付録B の条件付き書式）。
 var SAFETY_FLAG_VALUES = ['該当あり', 'わからない', '必要'];
 
+// 確認画面に出す項目名。
+// これが無いと、JavaScript 無効の環境で申込者に kubun / biko といった
+// 内部の項目名がそのまま見えてしまう（2026-09-25 に画面サンプルを作って気づいた）。
+// 区分ごとの追加項目は KUBUN_LIST、安全確認は SAFETY_LIST から引くのでここには書かない。
+var FIELD_LABELS = {
+  kubun:   'お申し込みの区分',
+  course:  'ご希望のコース',
+  options: '追加の検査',
+  chinsei: '鎮静剤のご希望',
+  name:    'お名前',
+  kana:    'フリガナ',
+  birth:   '生年月日',
+  sex:     '性別',
+  tel:     '電話番号',
+  mail:    'メールアドレス',
+  jikan:   'ご連絡しやすい時間帯',
+  rireki:  '当院での健診の受診歴',
+  biko:    'ご質問・ご要望'
+};
+
+// 確認画面に出さない項目。持ち回すが表示はしない。
+// ハニーポット（HONEYPOT_FIELD）もここでは挙げず、main.gs 側で個別に除く。
+// このファイルは上から順に評価されるため、後ろで定義する値をここで参照できない。
+var CONFIRM_HIDDEN_KEYS = ['step', 'elapsed_seconds', 'wishes'];
+
 // ===== その他の選択肢 =====
 var SEX_LIST     = ['男性', '女性'];
 var JIKAN_LIST   = ['午前', '午後', '夕方以降', 'いつでも'];  // 連絡希望時間帯

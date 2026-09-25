@@ -245,19 +245,23 @@ function renderConfirm_(raw) {
     hidden.push('<input type="hidden" name="' + escapeHtml_(name) + '" value="' + escapeHtml_(value) + '">');
   }
 
+  // 入力値はすべて持ち回す。step だけは send に変えるので、あとで入れ直す。
   for (var key in raw) {
     if (!Object.prototype.hasOwnProperty.call(raw, key)) continue;
     if (key === 'step') continue;
     var value = raw[key];
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) addHidden(key, value[i]);
-      addRow(key, value.join('、'));
     } else {
       addHidden(key, value);
-      addRow(key, value);
     }
   }
   addHidden('step', 'send');
+
+  // 表示は、人が読める名前が付いている項目だけにする。
+  // 項目名をそのまま出すと、申込者に kubun や biko が見えてしまう。
+  var display = confirmRows_(raw);
+  for (var d = 0; d < display.length; d++) addRow(display[d][0], display[d][1]);
 
   return htmlPage_(
     '<h1>入力内容のご確認</h1>' +
@@ -270,6 +274,66 @@ function renderConfirm_(raw) {
     '</form>' +
     '<p><a href="javascript:history.back()">前の画面に戻って修正する</a></p>'
   );
+}
+
+/**
+ * 確認画面に出す「項目名と値」の並びを作る。
+ * 並び順は入力画面と同じにする。画面と確認で順番が違うと見比べにくい。
+ */
+function confirmRows_(raw) {
+  var rows = [];
+  function push(label, value) {
+    var text = trimmed_(value);
+    if (text) rows.push([label, text]);
+  }
+
+  push(FIELD_LABELS.kubun, raw.kubun);
+
+  // 区分ごとの追加項目。項目名は KUBUN_LIST が持っている
+  var kubunDef = findKubun_(trimmed_(raw.kubun));
+  if (kubunDef) {
+    for (var i = 0; i < kubunDef.extra.length; i++) {
+      push(kubunDef.extra[i].label, raw['extra_' + kubunDef.extra[i].key]);
+    }
+  }
+
+  push(FIELD_LABELS.course, raw.course);
+
+  var options = raw.options;
+  if (typeof options === 'string') options = options ? options.split(',') : [];
+  if (Array.isArray(options) && options.length) push(FIELD_LABELS.options, options.join('、'));
+
+  push(FIELD_LABELS.chinsei, raw.chinsei);
+  push(FIELD_LABELS.name, raw.name);
+  push(FIELD_LABELS.kana, raw.kana);
+  push(FIELD_LABELS.birth, raw.birth);
+  push(FIELD_LABELS.sex, raw.sex);
+  push(FIELD_LABELS.tel, raw.tel);
+  push(FIELD_LABELS.mail, raw.mail);
+  push(FIELD_LABELS.jikan, raw.jikan);
+  push(FIELD_LABELS.rireki, raw.rireki);
+
+  // 希望日は wish1〜3（プルダウン）と wishes（JSON）のどちらで来ることもある
+  var wishes = collectWishSelects_(raw);
+  if (!wishes.length && raw.wishes) {
+    try {
+      var parsed = JSON.parse(raw.wishes);
+      if (Array.isArray(parsed)) wishes = parsed;
+    } catch (error) {
+      console.warn('確認画面：希望日を読めませんでした。' + error.message);
+    }
+  }
+  for (var w = 0; w < wishes.length; w++) {
+    push('第' + (w + 1) + '希望', trimmed_(wishes[w].date) + ' ' + trimmed_(wishes[w].slot));
+  }
+
+  // 安全確認。項目名は SAFETY_LIST が持っている
+  for (var s = 0; s < SAFETY_LIST.length; s++) {
+    push(SAFETY_LIST[s].label, raw['safety_' + SAFETY_LIST[s].key]);
+  }
+
+  push(FIELD_LABELS.biko, raw.biko);
+  return rows;
 }
 
 /** HTML に値を差し込む前のエスケープ。入力値をそのまま画面に出さない。 */

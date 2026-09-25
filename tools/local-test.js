@@ -440,6 +440,35 @@ expectError('定義に無い追加検査は弾く（改ざん対策）', { optio
   post(context, input);
   check('表示から送信までが速すぎると台帳に入れない', ledgerRows(sheets).length === 1);
 }
+{
+  // JavaScript 無効だと経過秒が空のまま届く。これを 0 秒とみなすと
+  // JS を切っている利用者が全員 bot 扱いになり、完了画面を見たのに
+  // 台帳に残らない状態になる。
+  const { context, sheets } = newEnv();
+  const input = Object.assign(baseInput([day1]), { elapsed_seconds: '' });
+  post(context, input);
+  check('経過秒が空（JavaScript 無効）でも申込を受け付ける', ledgerRows(sheets).length === 2,
+    `台帳行数=${ledgerRows(sheets).length}`);
+}
+{
+  const { context, sheets } = newEnv();
+  const input = baseInput([day1]);
+  delete input.elapsed_seconds;
+  post(context, input);
+  check('経過秒が無くても申込を受け付ける', ledgerRows(sheets).length === 2,
+    `台帳行数=${ledgerRows(sheets).length}`);
+}
+{
+  // JavaScript 無効の送信経路：wishes(JSON) ではなく wish1 のプルダウンで届く
+  const { context, sheets } = newEnv();
+  const input = baseInput([day1]);
+  delete input.wishes;
+  delete input.elapsed_seconds;
+  input.wish1 = day1 + '|午前';
+  post(context, input);
+  check('JavaScript 無効の希望日（プルダウン）で申込を受け付ける', ledgerRows(sheets).length === 2,
+    `台帳行数=${ledgerRows(sheets).length}`);
+}
 
 // --- 8. 想定外の文字・極端な値 ---------------------------------------
 {
