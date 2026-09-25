@@ -1,0 +1,623 @@
+<title>健診予約フォーム 画面サンプル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #eceeed;
+    --card: #ffffff;
+    --ink: #16211f;
+    --muted: #5a6a67;
+    --rule: #ccd5d3;
+    --rule-soft: #e3e8e7;
+    --accent: #0f6e63;
+    --accent-weak: #e2efec;
+    --stamp: #a3341d;
+    --stamp-ink: #ffffff;
+    --stamp-weak: #f8e8e3;
+    --warn: #7d5410;
+    --warn-weak: #fbf0da;
+    --shadow: 0 1px 2px rgba(20, 40, 38, .10), 0 8px 20px -14px rgba(20, 40, 38, .35);
+
+    --jp: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+    --display: "Zen Kaku Gothic New", var(--jp);
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #111716;
+      --card: #1a2321;
+      --ink: #e4ebe9;
+      --muted: #9aaba7;
+      --rule: #32413e;
+      --rule-soft: #26302e;
+      --accent: #63bfb1;
+      --accent-weak: #15302c;
+      --stamp: #e08a71;
+      --stamp-ink: #1a0f0b;
+      --stamp-weak: #32201a;
+      --warn: #d7b26a;
+      --warn-weak: #2c2515;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 24px -16px rgba(0, 0, 0, .8);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #111716;
+    --card: #1a2321;
+    --ink: #e4ebe9;
+    --muted: #9aaba7;
+    --rule: #32413e;
+    --rule-soft: #26302e;
+    --accent: #63bfb1;
+    --accent-weak: #15302c;
+    --stamp: #e08a71;
+    --stamp-ink: #1a0f0b;
+    --stamp-weak: #32201a;
+    --warn: #d7b26a;
+    --warn-weak: #2c2515;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 24px -16px rgba(0, 0, 0, .8);
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--jp);
+    font-size: 16px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== 見本バー（常に見えている） ===== */
+  .stampbar {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 50;
+    background: var(--stamp);
+    color: var(--stamp-ink);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    padding: 9px 20px;
+    font-family: var(--display);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .stampbar b {
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: .18em;
+    border: 1.5px solid currentColor;
+    padding: 1px 9px;
+    font-size: 12px;
+    flex: none;
+  }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 0 72px; }
+
+  /* ===== 見出し ===== */
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(27px, 5.2vw, 38px);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: .01em;
+    margin: 40px 0 14px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--display);
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lead { font-size: 17px; margin: 0 0 10px; }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 4px 20px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    margin: 0 0 30px; padding-top: 14px; border-top: 1px solid var(--rule);
+  }
+
+  /* ===== 章 ===== */
+  .chapter { margin-top: 56px; }
+  .chapter > p { color: var(--muted); margin-top: 10px; }
+
+  /* ===== 注意の箱 ===== */
+  .callout {
+    border-left: 4px solid var(--stamp);
+    background: var(--stamp-weak);
+    padding: 16px 18px;
+    margin: 0 0 28px;
+  }
+  .callout.note { border-left-color: var(--accent); background: var(--accent-weak); }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-weak); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout strong { font-family: var(--display); }
+
+  /* ===== 目次 ===== */
+  .toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 26px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .toc li { border-top: 1px solid var(--rule-soft); }
+  .toc a { display: flex; gap: 10px; padding: 9px 0; text-decoration: none; color: inherit; font-size: 15px; }
+  .toc a:hover .toc-t { text-decoration: underline; }
+  .toc .no { font-family: var(--mono); font-size: 12px; color: var(--accent); padding-top: 3px; flex: none; }
+
+  /* ===== 図 ===== */
+  .fig { margin-top: 34px; }
+  .fig-head { display: flex; gap: 12px; align-items: baseline; margin-bottom: 4px; }
+  .fig-no {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+    color: var(--accent); background: var(--accent-weak);
+    padding: 2px 8px; flex: none;
+  }
+  .when { color: var(--muted); font-size: 15px; margin: 0 0 12px; }
+  .when b { color: var(--ink); font-weight: 500; font-family: var(--display); }
+
+  .check { margin: 0 0 14px; padding: 0; list-style: none; }
+  .check li { position: relative; padding-left: 26px; margin-bottom: 4px; font-size: 15.5px; }
+  .check li::before {
+    content: ""; position: absolute; left: 0; top: .55em;
+    width: 11px; height: 11px; border: 1.5px solid var(--accent); border-radius: 1px;
+  }
+
+  .frame {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    box-shadow: var(--shadow);
+  }
+  .shot { position: relative; }
+  .shot.tall .inner { max-height: 560px; overflow: hidden; }
+  .shot .inner { overflow-x: auto; }
+  .shot img { display: block; width: 100%; max-width: 100%; height: auto; }
+  .shot.tall::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
+    background: linear-gradient(to bottom, transparent, var(--card));
+    pointer-events: none;
+  }
+  .cap {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;
+    border-top: 1px solid var(--rule-soft); padding: 8px 12px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  }
+  .cap button {
+    font: inherit; font-family: var(--display); font-size: 13px;
+    background: var(--card); color: var(--accent);
+    border: 1px solid var(--rule); border-radius: 2px;
+    padding: 4px 12px; min-height: 32px; cursor: pointer;
+  }
+  .cap button:hover { background: var(--accent-weak); }
+  .cap button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ===== 表 ===== */
+  .tablewrap { overflow-x: auto; margin-bottom: 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 460px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--rule-soft); }
+  thead th { font-family: var(--display); border-bottom: 1.5px solid var(--rule); white-space: nowrap; }
+  tbody th { font-weight: 500; white-space: nowrap; }
+
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--rule-soft); padding: 1px 5px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="stampbar">
+  <b>見本</b>
+  <span>この資料は画面の見本です。ここから実際の申し込みはできません。写っている画面はまだ公開されていません。</span>
+</div>
+
+<div class="wrap">
+
+  <h1>健診・人間ドック 予約依頼フォーム<br>画面サンプル</h1>
+  <p class="lead">デプロイ前に、受付担当のみなさんに文言と流れを見ていただくための資料です。
+  申込者に見える画面を、はじめから終わりまで18枚ならべました。</p>
+
+  <div class="meta">
+    <span>2026-09-25</span>
+    <span>長崎北徳洲会病院 健康管理センター</span>
+    <span>作成：栗原（情報システム）</span>
+    <span>生成元：gas/index.html</span>
+  </div>
+
+  <div class="callout">
+    <p><strong>これは見本です。</strong>実際のフォームではありません。ここに写っている画面から申し込みを送ることはできませんし、
+    このページに入力できる欄もありません。実物は院内の確認が済んでから公開します。</p>
+    <p>画像のなかの氏名・電話番号・メールアドレスはすべて作り物です（見本 花子／090-0000-0000／sample@example.com）。
+    実在の受診者のデータは一切使っていません。</p>
+  </div>
+
+  <div class="chapter">
+    <h2>見ていただきたいこと</h2>
+    <p>デザインではなく、<b>言葉と順番</b>を見てください。電話を減らすための資料なので、判断の基準はひとつです。</p>
+    <div class="callout note">
+      <p><strong>この画面のままだと、結局その件で電話がかかってくるか。</strong></p>
+      <p>かかってきそうなら、どの一文を足せば（あるいは消せば）かからなくなるかを教えてください。
+      「ここが分かりにくい」だけでも構いません。図の番号（図01 など）を添えていただけると直しやすいです。</p>
+    </div>
+    <p>特に、日ごろ電話で何度も同じ説明をしている内容 ―― 絶食の有無、鎮静剤を使った日の車の運転、大腸カメラが別日になること、
+    乳腺・婦人科の曜日 ―― が、画面のどこに、どんな言い方で出ているかをご確認ください。</p>
+  </div>
+
+  <div class="chapter">
+    <h2>画面の一覧</h2>
+    <ol class="toc">
+      <li><a href="#fig01"><span class="no">01</span><span class="toc-t">冒頭とお申し込みの区分</span></a></li>
+      <li><a href="#fig02"><span class="no">02</span><span class="toc-t">ご希望のコース</span></a></li>
+      <li><a href="#fig03"><span class="no">03</span><span class="toc-t">追加の検査</span></a></li>
+      <li><a href="#fig04"><span class="no">04</span><span class="toc-t">胃カメラを選んだとき</span></a></li>
+      <li><a href="#fig05"><span class="no">05</span><span class="toc-t">大腸カメラ・マンモを選んだとき</span></a></li>
+      <li><a href="#fig06"><span class="no">06</span><span class="toc-t">胃透視に切り替えたとき</span></a></li>
+      <li><a href="#fig07"><span class="no">07</span><span class="toc-t">ご本人について</span></a></li>
+      <li><a href="#fig08"><span class="no">08</span><span class="toc-t">ご希望の日（カレンダー）</span></a></li>
+      <li><a href="#fig09"><span class="no">09</span><span class="toc-t">安全のための確認</span></a></li>
+      <li><a href="#fig10"><span class="no">10</span><span class="toc-t">入力もれがあったとき</span></a></li>
+      <li><a href="#fig11"><span class="no">11</span><span class="toc-t">確認画面</span></a></li>
+      <li><a href="#fig12"><span class="no">12</span><span class="toc-t">完了画面</span></a></li>
+      <li><a href="#fig13"><span class="no">13</span><span class="toc-t">入力エラー（送信後）</span></a></li>
+      <li><a href="#fig14"><span class="no">14</span><span class="toc-t">希望日の受付が終わっていたとき</span></a></li>
+      <li><a href="#fig15"><span class="no">15</span><span class="toc-t">送信に失敗したとき</span></a></li>
+      <li><a href="#fig16"><span class="no">16</span><span class="toc-t">受付を止めているとき</span></a></li>
+      <li><a href="#fig17"><span class="no">17</span><span class="toc-t">受付可能日がないとき</span></a></li>
+      <li><a href="#fig18"><span class="no">18</span><span class="toc-t">スマートフォンでの見え方</span></a></li>
+    </ol>
+  </div>
+
+  <!-- ========== A ========== -->
+  <div class="chapter">
+    <h2>A. 申込者が順に入力していく画面</h2>
+    <p>ひとつづきの長い1ページです。上から順に7つの節に分かれています。</p>
+
+    <div class="fig" id="fig01">
+      <div class="fig-head"><span class="fig-no">図 01</span><h3>冒頭とお申し込みの区分</h3></div>
+      <p class="when"><b>いつ出るか</b>　申込者がリンクを開いて最初に見る部分。</p>
+      <ul class="check">
+        <li>「このフォームの送信だけでは予約は確定しません」が最初に目に入るか</li>
+        <li>電話番号を上のほうに置いてある。入力をあきらめた人がすぐ電話に移れるか</li>
+        <li>事業所・団体は別導線であることが、申し込みを始める前に分かるか</li>
+        <li>区分の5択（個人／協会けんぽ／健保組合／自治体／わからない）が、受付で実際に聞いている分け方と合っているか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s01-top.png" alt="フォーム冒頭。見出し、電話番号、お申し込みの区分の5択"></div></div>
+        <div class="cap"><span>gas/index.html — 1. お申し込みの区分</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig02">
+      <div class="fig-head"><span class="fig-no">図 02</span><h3>ご希望のコース</h3></div>
+      <p class="when"><b>いつ出るか</b>　区分のすぐ下。11コースを公式サイトの表記と料金のまま並べています。</p>
+      <ul class="check">
+        <li>コース名と料金が、いま案内しているものと合っているか</li>
+        <li>説明の一行で、隣のコースとの違いが分かるか</li>
+        <li>電話でいちばん多い「どれを選べばいいか分からない」に、この並びで答えられているか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s02-course.png" alt="ご希望のコース。11のコースが料金つきで並んでいる"></div></div>
+        <div class="cap"><span>gas/index.html — 2. ご希望のコース</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig03">
+      <div class="fig-head"><span class="fig-no">図 03</span><h3>追加の検査</h3></div>
+      <p class="when"><b>いつ出るか</b>　コースの下。まだ何も選んでいない状態です。</p>
+      <ul class="check">
+        <li>胃の検査（胃カメラ・胃透視）がコースではなくここにある。この置き方で迷わないか</li>
+        <li>12項目の名前と料金が合っているか</li>
+        <li>いまは出していない項目（呼吸器ドック、レディースドック、腫瘍マーカー、骨密度）は本当に不要か</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s03-options.png" alt="追加の検査。12項目のチェックボックスが料金つきで並んでいる"></div></div>
+        <div class="cap"><span>gas/index.html — 3. 追加の検査</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== B ========== -->
+  <div class="chapter">
+    <h2>B. 選んだ内容に応じて出る案内</h2>
+    <p>いま電話で説明している内容を、選んだその場で出すようにしています。
+    ここが効けば電話が短くなり、効かなければ結局かかってきます。いちばん見ていただきたい3枚です。</p>
+
+    <div class="fig" id="fig04">
+      <div class="fig-head"><span class="fig-no">図 04</span><h3>胃カメラを選んだとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　「胃カメラ」にチェックを入れた瞬間。鎮静剤の欄と絶食の案内が現れます。
+      さらに「希望する」を選ぶと、車で帰れない旨が出ます。</p>
+      <ul class="check">
+        <li>鎮静剤の3択（希望する／希望しない／相談したい）で足りるか</li>
+        <li>車・バイク・自転車で帰れないことが、この書き方で伝わるか</li>
+        <li>絶食は「具体的な時刻は折り返しの電話で案内する」としています。ここに時刻まで書くべきか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s04-endo.png" alt="胃カメラを選ぶと鎮静剤の欄と、車で帰れない旨・絶食の案内が出る"></div></div>
+        <div class="cap"><span>分岐：胃カメラ → 鎮静剤・絶食</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig05">
+      <div class="fig-head"><span class="fig-no">図 05</span><h3>大腸カメラ・マンモグラフィーを選んだとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　「大腸カメラ」で別日来院の案内、「マンモグラフィー」など乳腺・婦人科の検査で曜日・時間の案内が出ます。</p>
+      <ul class="check">
+        <li>大腸カメラが健診と別日になることが、申し込む前に分かるか</li>
+        <li>乳腺・婦人科の「水曜10:00〜12:00／金曜14:00〜16:00」が現行のとおりか</li>
+        <li>曜日が合わなくても「そのまま進めていただけます」としています。この案内でよいか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s05-colon.png" alt="大腸カメラとマンモグラフィーを選ぶと、別日来院と曜日限定の案内が出る"></div></div>
+        <div class="cap"><span>分岐：大腸カメラ → 別日／乳腺・婦人科 → 曜日限定</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig06">
+      <div class="fig-head"><span class="fig-no">図 06</span><h3>胃透視に切り替えたとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　胃カメラを選んだあとに胃透視を選ぶと、胃カメラのチェックが自動で外れ、鎮静剤の欄も消えます。</p>
+      <ul class="check">
+        <li>同じ日に胃カメラと胃透視を両方行うことは無い、という前提で合っているか（この前提は未確認です）</li>
+        <li>勝手にチェックが外れることに申込者が気づけるか。外れた旨を文字でも出すべきか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s06-stomach-exclusive.png" alt="胃透視を選ぶと胃カメラのチェックが外れ、鎮静剤の欄が消える"></div></div>
+        <div class="cap"><span>分岐：胃の検査はどちらか一方</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== C ========== -->
+  <div class="chapter">
+    <h2>C. 本人情報・希望日・安全確認</h2>
+
+    <div class="fig" id="fig07">
+      <div class="fig-head"><span class="fig-no">図 07</span><h3>ご本人について</h3></div>
+      <p class="when"><b>いつ出るか</b>　追加の検査の下。折り返しの電話に必要な項目だけを聞いています。</p>
+      <ul class="check">
+        <li>折り返しの電話に必要な項目がそろっているか。足りない／余計なものはないか</li>
+        <li>「ご連絡しやすい時間帯」の選択肢が、実際にかけられる時間と合っているか</li>
+        <li>住所・保険証番号は聞いていません。電話のときに聞く運用で回るか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s07-personal.png" alt="ご本人について。氏名、フリガナ、生年月日、性別、電話、メール、連絡しやすい時間帯、受診歴"></div></div>
+        <div class="cap"><span>gas/index.html — 4. ご本人について</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig08">
+      <div class="fig-head"><span class="fig-no">図 08</span><h3>ご希望の日（カレンダー）</h3></div>
+      <p class="when"><b>いつ出るか</b>　スプレッドシート「受付可能日」で◯を付けた日だけが押せます。3つまで選べます。
+      残数は出しません。ここで選んだ日は確定ではありません。</p>
+      <ul class="check">
+        <li>「受診日の確定ではありません」が十分に目立っているか</li>
+        <li>◯を付ける運用（誰が、いつ、何日先まで）が回りそうか</li>
+        <li>この見本では9月末の3日しか空いておらず、9月のカレンダーはほとんど灰色です。
+            最初から「最初に空いている月」を開くべきか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s08-calendar.png" alt="ご希望の日。月カレンダーで受付可能日だけが押せ、選んだ日が第1〜第3希望として並ぶ"></div></div>
+        <div class="cap"><span>gas/index.html — 5. ご希望の日</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig09">
+      <div class="fig-head"><span class="fig-no">図 09</span><h3>安全のための確認</h3></div>
+      <p class="when"><b>いつ出るか</b>　性別や選んだ検査に応じて、必要な項目だけが出ます。
+      この図は「女性・頭部MR・胃カメラ」を選んだ状態です。</p>
+      <ul class="check">
+        <li>答えは「該当あり／該当なし／わからない」の3択だけです。病名・薬剤名・症状は聞きません。この粒度で、電話で確認すべき人を拾えるか</li>
+        <li>「わからない」を選んだ人に、電話で何を聞くかが決まっているか</li>
+        <li>MRの体内金属、造影剤のアレルギー、抗凝固薬 ―― 当日に判明して困るものが漏れていないか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s09-safety.png" alt="安全のための確認。妊娠、体内金属、造影剤、抗凝固薬、車いす、発熱の各項目が3択で並ぶ"></div></div>
+        <div class="cap"><span>gas/index.html — 6. 安全のための確認</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== D ========== -->
+  <div class="chapter">
+    <h2>D. 送信するまで</h2>
+
+    <div class="fig" id="fig10">
+      <div class="fig-head"><span class="fig-no">図 10</span><h3>入力もれがあったとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　「入力内容を確認する」を押したが、埋まっていない必須項目があるとき。送信せずページの上にまとめて出します。</p>
+      <ul class="check">
+        <li>足りない項目の言い方が、その人にとって分かるか</li>
+        <li>この図では13件並んでいます。多すぎないか。項目のすぐそばにも出すべきか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s10-error-inline.png" alt="ページ上部に赤枠で入力もれの一覧が出ている"></div></div>
+        <div class="cap"><span>画面内のチェック（送信前）</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig11">
+      <div class="fig-head"><span class="fig-no">図 11</span><h3>確認画面</h3></div>
+      <p class="when"><b>いつ出るか</b>　入力がそろったあと、送信の直前。図はJavaScriptを切っている環境のものです
+      （通常は同じ内容が同じページ内に出ます）。</p>
+      <ul class="check">
+        <li>項目名が申込者に通じる言葉になっているか</li>
+        <li>生年月日が <code>1979-05-12</code>、希望日が <code>2026-10-14 午前</code> のままです。
+            <b>「1979年5月12日」「10月14日（水）午前」に直すべきか</b></li>
+        <li>ここに出していない値（迷惑送信対策の欄など）が無いか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s11-confirm-noscript.png" alt="入力内容のご確認。項目名と値が2列で並び、送信するボタンがある"></div></div>
+        <div class="cap"><span>renderConfirm_()</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig12">
+      <div class="fig-head"><span class="fig-no">図 12</span><h3>完了画面</h3></div>
+      <p class="when"><b>いつ出るか</b>　台帳に1行書けたとき。受付番号を出します。同時に申込者へ自動返信メールが飛びます。</p>
+      <ul class="check">
+        <li>「この時点では受診日は確定していません」が強く出ているか</li>
+        <li>「2営業日以内に電話」と書いています。この約束を守れるか</li>
+        <li>受付番号（例：20260925-0001）を、受付で実際に使うか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot"><div class="inner"><img src="screens/s12-done.png" alt="予約のご依頼を受け付けました。受付番号と、2営業日以内に電話する旨"></div></div>
+        <div class="cap"><span>renderDone_()</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== E ========== -->
+  <div class="chapter">
+    <h2>E. うまくいかなかったとき</h2>
+    <p>ここは受付に電話がかかってくる画面です。文言によって、かかってくる件数も長さも変わります。</p>
+
+    <div class="fig" id="fig13">
+      <div class="fig-head"><span class="fig-no">図 13</span><h3>入力エラー（送信後）</h3></div>
+      <p class="when"><b>いつ出るか</b>　画面のチェックをすり抜けた入力を、サーバ側で止めたとき。まれです。</p>
+      <ul class="check">
+        <li>戻って直せることが分かるか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot"><div class="inner"><img src="screens/s13-error-input.png" alt="入力内容をご確認くださいの画面。足りない項目が箇条書きされている"></div></div>
+        <div class="cap"><span>renderError_(errors, false)</span></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig14">
+      <div class="fig-head"><span class="fig-no">図 14</span><h3>希望日の受付が終わっていたとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　フォームを開いたまま置いておき、その間に受付可能日の◯が外れたとき。</p>
+      <ul class="check">
+        <li>申込者の入力ミスではないことが伝わる言い方になっているか</li>
+        <li>選び直しか、電話か。どちらに寄せたいか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot"><div class="inner"><img src="screens/s14-error-slot.png" alt="選択された日は受付が終了しました、という案内"></div></div>
+        <div class="cap"><span>renderError_(errors, true)</span></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig15">
+      <div class="fig-head"><span class="fig-no">図 15</span><h3>送信に失敗したとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　台帳に書けなかったとき。受け付けた顔をせず、電話番号を出します。</p>
+      <ul class="check">
+        <li>「受け付けられなかった」ことが誤解なく伝わるか（受け付けたと思われるのがいちばん困ります）</li>
+        <li>電話番号がすぐ目に入るか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot"><div class="inner"><img src="screens/s15-failure.png" alt="送信できませんでしたという案内と、電話番号"></div></div>
+        <div class="cap"><span>renderFailure_()</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== F ========== -->
+  <div class="chapter">
+    <h2>F. 受け付けていないとき</h2>
+
+    <div class="fig" id="fig16">
+      <div class="fig-head"><span class="fig-no">図 16</span><h3>受付を止めているとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　年末年始など、こちらで受付を止めたとき（<code>config.gs</code> の設定を1か所変えます）。</p>
+      <ul class="check">
+        <li>いつ再開するかを書く欄があったほうがよいか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot"><div class="inner"><img src="screens/s16-suspended.png" alt="ただいま受付を停止していますという案内"></div></div>
+        <div class="cap"><span>renderSuspended_()</span></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig17">
+      <div class="fig-head"><span class="fig-no">図 17</span><h3>受付可能日がないとき</h3></div>
+      <p class="when"><b>いつ出るか</b>　受付可能日シートに◯が1つも無いとき。空のカレンダーは出さず、電話に誘導します。</p>
+      <ul class="check">
+        <li>◯を切らさない運用（誰が、どのくらいの頻度で足すか）が決まっているか</li>
+        <li>◯が7日分を切ると担当へ自動でメールが飛びます。宛先を誰にするか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s17-no-availability.png" alt="受付可能日が無いときの画面。カレンダーの代わりに電話の案内が出ている"></div></div>
+        <div class="cap"><span>受付可能日ゼロ</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+
+    <div class="fig" id="fig18">
+      <div class="fig-head"><span class="fig-no">図 18</span><h3>スマートフォンでの見え方</h3></div>
+      <p class="when"><b>いつ出るか</b>　幅375px（iPhone SE 相当）で開いたとき。横スクロールは出ません。</p>
+      <ul class="check">
+        <li>ボタンや選択肢が指で押せる大きさか</li>
+        <li>文字が小さすぎないか</li>
+      </ul>
+      <div class="frame">
+        <div class="shot tall"><div class="inner"><img src="screens/s18-phone.png" alt="幅375pxで表示したフォームの冒頭"></div></div>
+        <div class="cap"><span>375px</span><button type="button" data-expand>全体を見る</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 未確定 ========== -->
+  <div class="chapter">
+    <h2>まだ決まっていないこと</h2>
+    <p>画面に出していない、あるいは根拠が確認できていない項目です。健診部門に確認してから直します。</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>項目</th><th>いまの扱い</th><th>決めてほしいこと</th></tr></thead>
+        <tbody>
+          <tr><th>呼吸器ドック</th><td>出していない</td><td>2026-09-16 時点の公式サイトに記載が無い。現在も扱っているか</td></tr>
+          <tr><th>レディースドック</th><td>出していない</td><td>同上</td></tr>
+          <tr><th>腫瘍マーカー・骨密度</th><td>出していない</td><td>オプション一覧に記載が無い。追加するか</td></tr>
+          <tr><th>特定保健指導</th><td>出していない</td><td>健診ではなく指導。このフォームで受けるか、別導線にするか</td></tr>
+          <tr><th>各オプションの絶食要否</th><td>胃の検査のみ「絶食が必要」と表示（仮）</td><td>実際に絶食が要る検査はどれか</td></tr>
+          <tr><th>胃カメラと胃透視の排他</th><td>どちらか一方しか選べない（仮）</td><td>同日に両方行うことはあるか</td></tr>
+          <tr><th>受付可能日の更新当番</th><td>未定</td><td>誰が、どのくらいの頻度で、何日先まで◯を付けるか</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <h2>このあとの段取り</h2>
+    <p>Googleクラウド利用の院内承認（2026-09-16）に付いていた2つの条件は、どちらも満たしました。
+    Workspaceの契約が2026-09-25に完了し、台帳の1年での退避・削除は仕組みとして実装済みです。
+    残っているのはデプロイの作業だけです。</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>順</th><th>やること</th><th>誰が</th></tr></thead>
+        <tbody>
+          <tr><th>1</th><td>スプレッドシート2枚（予約依頼台帳／受付可能日）を作る</td><td>情シス</td></tr>
+          <tr><th>2</th><td>設定の差し替えとデプロイ</td><td>情シス</td></tr>
+          <tr><th>3</th><td>ダミー10件で疎通確認（メール到達・文字化け・二重起票）</td><td>情シス</td></tr>
+          <tr><th>4</th><td><b>受付担当2〜3名に実物を触ってもらう</b>（この資料はその前倒し）</td><td>受付・情シス</td></tr>
+          <tr><th>5</th><td>公式サイトへのリンク追加を業者へ依頼</td><td>情シス→業者</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>この資料へのご意見は、4の前にいただけると手戻りがありません。</strong>
+      デプロイ後でも直せますが、文言はデプロイ前に固めたほうが早く済みます。</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>画面は <code>gas/index.html</code> と <code>gas/main.gs</code> から生成しています。
+    実装を直したら <code>node tools/render-screens.js</code> と <code>node tools/shoot-screens.js</code> で撮り直します。</p>
+    <p>長崎北徳洲会病院 健康管理センター　健診・人間ドック 予約依頼フォーム（開発中）</p>
+  </footer>
+</div>
+
+<script>
+  // 長い図は途中で切って置き、押されたら全体を出す。
+  document.querySelectorAll('[data-expand]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var shot = button.closest('.frame').querySelector('.shot');
+      var open = shot.classList.toggle('tall') === false;
+      button.textContent = open ? '折りたたむ' : '全体を見る';
+    });
+  });
+</script>
